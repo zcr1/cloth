@@ -1,14 +1,17 @@
-
-
 //http://threejs.org/examples/canvas_geometry_cube.html
-
 
 "use strict";
 
 $(function(){
+	//disable context menu
+	$(document).bind("contextmenu",function(e){  
+		return false;  
+	});  
+
 	var clothSim = new ClothSim("#container",500, 500);
 	clothSim.cameraInit(45, 0.1, 10000);
 	clothSim.renderInit();
+	clothSim.eventListeners();
 	
 	var damping = 0.5,
 		stepSize = 1;
@@ -16,35 +19,8 @@ $(function(){
 	var cloth = new Cloth([10, 10], damping, stepSize);
 	clothSim.addCloth(cloth);
 
-	var radius = 10,
-    	segments = 16,
-    	rings = 5;
-	var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
-
-	var sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, segments, rings), material);
-
-	/*
-	var geometry = new THREE.CubeGeometry( 200, 200, 200 );
-	for ( var i = 0; i < geometry.faces.length; i ++ ) {
-		geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
-
-	}
-	var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
-	var cube = new THREE.Mesh( geometry, material );
-	cube.position.y = 150;
-
-	cloth.addToScene(cube);
-
-	var geometry = new THREE.PlaneGeometry( 200, 200 );
-	geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
-
-	var material = new THREE.MeshBasicMaterial( { color: 0xe0e0e0 } );
-
-	var plane = new THREE.Mesh( geometry, material );
-	cloth.addToScene( plane );
-
-	cloth.renderer.render(cloth.scene, cloth.camera); */
-
+	//clothSim.renderer.render(clothSim.scene, clothSim.camera);
+	clothSim.animate();
 
 });
 
@@ -55,9 +31,13 @@ function ClothSim(container, width, height){
 	this.height = height;
 	this.aspect = this.width / this.height;	
 	this.scene = new THREE.Scene();
+	this.drag = false;
+	this.dragPoint = null;
+	this.mousePos = null;
+	self.mouseValid = false;
 
 	this.renderInit = function(){
-		this.renderer = new THREE.CanvasRenderer();
+		this.renderer = new THREE.WebGLRenderer();
 		this.renderer.setSize(this.width, this.height);
 		this.container.append(this.renderer.domElement);
 	}
@@ -83,10 +63,12 @@ function ClothSim(container, width, height){
 
 	this.addCloth = function(cloth){
 		this.cloth = cloth;
-		//do stuff
+		this.cloth.addPointsToScene(this.scene);
 	}
+
 	this.animate = function(){
-		requestAnimationFrame(this.animate);
+		this.cloth.satisfyConstraints();
+		requestAnimationFrame(this.animate.bind(this));
 		this.render();
 	}
 
@@ -94,64 +76,78 @@ function ClothSim(container, width, height){
 		this.renderer.render(this.scene, this.camera);
 	}
 
-}
+	this.eventListeners = function(){
+		var self = this;
 
-function Cloth(numParticles, damping, stepSize){
-	this.numParts = numParticles //[width, height]
-	this.buffer = 20; //how many pixels between particle centers
-	this.constraints = [];
-	this.particles = [];
-	this.partMass = 1;
-	this.partSize = 10;
-	this.damping = damping;
-	this.stepSize = stepSize;
+		$(document).mousemove(function(event){
+			self.mouseValid = self.validMousePos(event.pageX, event.pageY);
 
+			if (self.mouseValid){
+				var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
+				
+				self.mousePos = self.getMousePos(pos);
 
-	this.createParticles = function(){
-		for(var i = 0; i < this.numParts[0]; i++){
-			var row = [];
-			for(var j = 0; j < this.numParts[1]; j++){			
-				var pos = new Vector(i * this.buffer, j * this.buffer, 0);
-				var particle = new Particle(pos, this.partMass, false, this.damping, this.stepSize)
-				row.push(particle);
+				if (self.drag && self.mouseValid){
+					self.dragPoint.updatePos(self.mousePos);
+				}
 			}
-			this.particles.push(row);
-		}
+		});
+		
+		$(document).click(function(event){
+			if (self.mouseValid){
+				if (event.button == 0){
+					if (self.drag){
+						self.drag = false;
+					}
+					else{
+						var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
 
-	}
-	this.createParticles();
+						self.mousePos = self.getMousePos(pos);
+						self.drag = true;
+						
+						self.dragPoint = self.cloth.getClosestPoint(self.mousePos);
+						self.dragPoint.updatePos(self.mousePos);
+					}
+				}
+			}
+		});
 
-}
-
-function Particle(pos, mass, movable, damping, stepSize){
-	this.pos = pos;
-	this.oldPos = pos;
-	this.mass = mass;
-	this.movable = movable;
-	this.acceleration = 0;
-	this.damping = damping;
-	this.stepSize = stepSize;
-
-
-	this.addForce = function(f){
-		this.acceleration.add(f.divide(this.mass));
-	}
-	
-	this.timeStep = function()
-	{
-		if(this.movable)
-		{
-			var temp = this.pos;
-			this.pos.x = this.pos.x + (this.pos.x - this.oldPos.x) * (1.0 - this.damping) +
-						(this.acceleration.x * this.stepSize);
-			this.pos.y = this.pos.y + (this.pos.y - this.oldPos.y) * (1.0 - this.damping) +
-						(this.acceleration.y * this.stepSize);
-			this.pos.z = this.pos.z + (this.pos.z - this.oldPos.z) * (1.0 - this.damping) +
-						(this.acceleration.z * this.stepSize);
-			this.oldPos = temp;
-			this.acceleration = new Vector(0, 0, 0); //acceleration is reset since it has been translated into a change in position
-		}
+		$(document).bind('mousewheel', function(event, delta, deltaX, deltaY) {
+			if (self.mouseValid){
+    			self.cameraZoom(delta);
+    			return false;
+    		}
+		});
 	}
 
+	this.cameraZoom = function(delta){
+		if (delta > 0) this.camera.position.z -= 10;
+		else if (delta < 0) this.camera.position.z += 10;
+	}
+	//Is the position within the canvas element?
+	this.validMousePos = function(x, y){
+		if ((x < 0) || (x > this.width) ||
+			(y < 0) || (y > this.height)) return false;
+		return true;
+	}
+
+	//Extends a ray from camera position until the z-coordinate of ray is 0
+	//Thanks stackoverflow!
+	this.getMousePos = function(mousePos){
+		var vector = new THREE.Vector3((mousePos.x / this.width ) * 2 - 1,
+										-(mousePos.y / this.height ) * 2 + 1, 
+										0.5 );
+
+		var projector = new THREE.Projector();		
+		projector.unprojectVector(vector, this.camera);
+
+		var dir = vector.sub(this.camera.position ).normalize();
+
+		var ray = new THREE.Raycaster(this.camera.position, dir);
+		var distance = - this.camera.position.z / dir.z;
+
+		var pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
+		return pos;
+	}
 
 }

@@ -2,69 +2,156 @@
 
 //http://threejs.org/examples/canvas_geometry_cube.html
 
-// set the scene size
-	var WIDTH = 400,
-		HEIGHT = 400;
 
-	// set some camera attributes
-	var VIEW_ANGLE = 45,
-	    ASPECT = WIDTH / HEIGHT,
-	    NEAR = 0.1,
-	    FAR = 10000;
+"use strict";
 
-	// get the DOM element to attach to
-	// - assume we've got jQuery to hand
-	var $container = $('#container');
+$(function(){
+	var clothSim = new ClothSim("#container",500, 500);
+	clothSim.cameraInit(45, 0.1, 10000);
+	clothSim.renderInit();
+	
+	var damping = 0.5,
+		stepSize = 1;
 
-	// create a WebGL renderer, camera
-	// and a scene
-	var renderer = new THREE.WebGLRenderer();
-	var camera = new THREE.PerspectiveCamera(  VIEW_ANGLE,
-	                                ASPECT,
-	                                NEAR,
-	                                FAR  );
-	var scene = new THREE.Scene();
+	var cloth = new Cloth([10, 10], damping, stepSize);
+	clothSim.addCloth(cloth);
 
-	// the camera starts at 0,0,0 so pull it back
-	camera.position.z = 300;
+	var radius = 10,
+    	segments = 16,
+    	rings = 5;
+	var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
 
-	// start the renderer
-	renderer.setSize(WIDTH, HEIGHT);
+	var sphere = new THREE.Mesh(new THREE.SphereGeometry(radius, segments, rings), material);
 
-	// attach the render-supplied DOM element
-	$container.append(renderer.domElement);
+	/*
+	var geometry = new THREE.CubeGeometry( 200, 200, 200 );
+	for ( var i = 0; i < geometry.faces.length; i ++ ) {
+		geometry.faces[ i ].color.setHex( Math.random() * 0xffffff );
 
-	// create the sphere's material
-	var sphereMaterial = new THREE.MeshLambertMaterial(
+	}
+	var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
+	var cube = new THREE.Mesh( geometry, material );
+	cube.position.y = 150;
+
+	cloth.addToScene(cube);
+
+	var geometry = new THREE.PlaneGeometry( 200, 200 );
+	geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
+
+	var material = new THREE.MeshBasicMaterial( { color: 0xe0e0e0 } );
+
+	var plane = new THREE.Mesh( geometry, material );
+	cloth.addToScene( plane );
+
+	cloth.renderer.render(cloth.scene, cloth.camera); */
+
+
+});
+
+
+function ClothSim(container, width, height){
+	this.container = $(container);
+	this.width = width;
+	this.height = height;
+	this.aspect = this.width / this.height;	
+	this.scene = new THREE.Scene();
+
+	this.renderInit = function(){
+		this.renderer = new THREE.CanvasRenderer();
+		this.renderer.setSize(this.width, this.height);
+		this.container.append(this.renderer.domElement);
+	}
+
+	this.cameraInit = function(viewAngle, near, far){
+		this.viewAngle = viewAngle;
+		this.near = near;
+		this.far = far;
+		this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
+		this.setCameraPos(this.camera.position.x, 150, 500);
+		this.scene.add(this.camera);
+	}
+
+	this.setCameraPos = function (x, y, z){
+		this.camera.position.x = x;
+		this.camera.position.y = y;
+		this.camera.position.z = z;
+	}
+
+	this.addToScene = function(obj){
+		this.scene.add(obj);
+	}
+
+	this.addCloth = function(cloth){
+		this.cloth = cloth;
+		//do stuff
+	}
+	this.animate = function(){
+		requestAnimationFrame(this.animate);
+		this.render();
+	}
+
+	this.render = function(){
+		this.renderer.render(this.scene, this.camera);
+	}
+
+}
+
+function Cloth(numParticles, damping, stepSize){
+	this.numParts = numParticles //[width, height]
+	this.buffer = 20; //how many pixels between particle centers
+	this.constraints = [];
+	this.particles = [];
+	this.partMass = 1;
+	this.partSize = 10;
+	this.damping = damping;
+	this.stepSize = stepSize;
+
+
+	this.createParticles = function(){
+		for(var i = 0; i < this.numParts[0]; i++){
+			var row = [];
+			for(var j = 0; j < this.numParts[1]; j++){			
+				var pos = new Vector(i * this.buffer, j * this.buffer, 0);
+				var particle = new Particle(pos, this.partMass, false, this.damping, this.stepSize)
+				row.push(particle);
+			}
+			this.particles.push(row);
+		}
+
+	}
+	this.createParticles();
+
+}
+
+function Particle(pos, mass, movable, damping, stepSize){
+	this.pos = pos;
+	this.oldPos = pos;
+	this.mass = mass;
+	this.movable = movable;
+	this.acceleration = 0;
+	this.damping = damping;
+	this.stepSize = stepSize;
+
+
+	this.addForce = function(f){
+		this.acceleration.add(f.divide(this.mass));
+	}
+	
+	this.timeStep = function()
 	{
-	    color: 0xCC0000
-	});
+		if(this.movable)
+		{
+			var temp = this.pos;
+			this.pos.x = this.pos.x + (this.pos.x - this.oldPos.x) * (1.0 - this.damping) +
+						(this.acceleration.x * this.stepSize);
+			this.pos.y = this.pos.y + (this.pos.y - this.oldPos.y) * (1.0 - this.damping) +
+						(this.acceleration.y * this.stepSize);
+			this.pos.z = this.pos.z + (this.pos.z - this.oldPos.z) * (1.0 - this.damping) +
+						(this.acceleration.z * this.stepSize);
+			this.oldPos = temp;
+			this.acceleration = new Vector(0, 0, 0); //acceleration is reset since it has been translated into a change in position
+		}
+	}
 
-	// set up the sphere vars
-	var radius = 50, segments = 16, rings = 16;
 
-	// create a new mesh with sphere geometry -
-	// we will cover the sphereMaterial next!
-	var sphere = new THREE.Mesh(
-	   new THREE.SphereGeometry(radius, segments, rings),
-	   sphereMaterial);
-
-	// add the sphere to the scene
-	scene.add(sphere);
-
-	// and the camera
-	scene.add(camera);
-
-	// create a point light
-	var pointLight = new THREE.PointLight( 0xFFFFFF );
-
-	// set its position
-	pointLight.position.x = 10;
-	pointLight.position.y = 50;
-	pointLight.position.z = 130;
-
-	// add to the scene
-	scene.add(pointLight);
-
-	// draw!
-	renderer.render(scene, camera);
+}

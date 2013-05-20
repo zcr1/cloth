@@ -98,12 +98,13 @@ textarea {
 #body{
     margin: auto;
     width: 800px;
+
 }
-#tutorial{
+#container{
+    /*text-align: center;   */
+    border: 1px solid #000000;
     width: 500px;
     height: 500px;
-    border: 1px solid black;
-    margin: 2em 2em 2em 2em;
 }
 
 /* ==========================================================================

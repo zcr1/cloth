@@ -3,25 +3,25 @@
 "use strict";
 
 $(function(){
+
 	//disable context menu
 	$(document).bind("contextmenu",function(e){  
 		return false;  
 	});  
 
-	var clothSim = new ClothSim("#container",500, 500);
-	clothSim.cameraInit(45, 0.1, 10000);
+	var clothSim = new ClothSim("#container",700, 700);
+	clothSim.cameraInit(45, 0.2, 10000);
 	clothSim.renderInit();
 	clothSim.eventListeners();
 	
-	var damping = 0.1,
-		stepSize = 1;
+	var damping = .75,
+		stepSize = 0.003;
 
-	var cloth = new Cloth([10, 10], damping, stepSize);
+	var cloth = new Cloth([20, 20], damping, stepSize);
+	cloth.createPoints()
 	clothSim.addCloth(cloth);
 
-	//clothSim.renderer.render(clothSim.scene, clothSim.camera);
 	clothSim.animate();
-
 });
 
 
@@ -34,7 +34,8 @@ function ClothSim(container, width, height){
 	this.drag = false;
 	this.dragPoint = null;
 	this.mousePos = null;
-	self.mouseValid = false;
+	this.mouseValid = false;
+	this.shift = false;
 
 	this.renderInit = function(){
 		this.renderer = new THREE.WebGLRenderer();
@@ -47,7 +48,7 @@ function ClothSim(container, width, height){
 		this.near = near;
 		this.far = far;
 		this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
-		this.setCameraPos(this.camera.position.x, 150, 500);
+		this.setCameraPos(this.camera.position.x, 150, 900);
 		this.scene.add(this.camera);
 	}
 
@@ -67,7 +68,9 @@ function ClothSim(container, width, height){
 	}
 
 	this.animate = function(){
+		this.cloth.timeStep();
 		this.cloth.satisfyConstraints();
+		if(!this.drag) this.cloth.applyGravity();
 		requestAnimationFrame(this.animate.bind(this));
 		this.render();
 	}
@@ -92,29 +95,50 @@ function ClothSim(container, width, height){
 				}
 			}
 		});
-		
-		$(document).click(function(event){
-			if (self.mouseValid){
-				if (event.button == 0){
-					if (self.drag){
-						self.drag = false;
-						self.dragPoint.movable = true;
-						self.dragPoint = null;
+
+		$(document).mouseup(function(event){
+			if(event.button == 0){
+				if (self.drag){
+					if (self.shift){
+						if (self.dragPoint) self.dragPoint.movable = false;
 					}
 					else{
-						var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
-
-						self.mousePos = self.getMousePos(pos);
-						self.drag = true;
-						
-						self.dragPoint = self.cloth.getClosestPoint(self.mousePos);
-						self.dragPoint.updatePos(self.mousePos);
-						self.dragPoint.movable = false;
+						if (self.dragPoint) self.dragPoint.movable = true;
 					}
+					self.dragPoint = null;
+					self.drag = false;
 				}
 			}
 		});
 
+		$(document).mousedown(function(event){
+			if (self.mouseValid){
+				if (event.button == 0){ 
+					//left click
+					var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
+
+					self.mousePos = self.getMousePos(pos);
+					self.drag = true;
+						
+					self.dragPoint = self.cloth.getClosestPoint(self.mousePos);
+					self.dragPoint.mouse = true;
+					self.dragPoint.movable = false;
+				}
+			}
+		});
+
+		$(document).keydown(function(event){
+			if(event.keyCode == 16){
+				self.shift = true;
+			}	
+		});
+		$(document).keyup(function(event){
+			if(event.keyCode == 16){
+				self.shift = false;
+			}	
+		});
+
+		//Mousewheel zoom
 		$(document).bind('mousewheel', function(event, delta, deltaX, deltaY) {
 			if (self.mouseValid){
     			self.cameraZoom(delta);
@@ -124,9 +148,10 @@ function ClothSim(container, width, height){
 	}
 
 	this.cameraZoom = function(delta){
-		if (delta > 0) this.camera.position.z -= 10;
-		else if (delta < 0) this.camera.position.z += 10;
+		if (delta > 0) this.camera.position.z -= 30;
+		else if (delta < 0) this.camera.position.z += 30;
 	}
+
 	//Is the position within the canvas element?
 	this.validMousePos = function(x, y){
 		if ((x < 0) || (x > this.width) ||

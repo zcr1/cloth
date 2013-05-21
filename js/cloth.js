@@ -7,6 +7,7 @@ function Cloth(numPoints, damping, stepSize){
 	this.partSize = 10;
 	this.damping = damping;
 	this.stepSize = stepSize;
+	this.numConstraints = 10; //how many times to run each constrain loop
 
 
 	this.createPoints = function(){
@@ -16,7 +17,7 @@ function Cloth(numPoints, damping, stepSize){
 
 			for (var j = 0; j < this.numParts[1]; j++){
 				var pos = new THREE.Vector3(i * this.restLength, j * this.restLength, 0),
-					point = new Point(pos, this.partMass, false, this.damping, this.stepSize);
+					point = new Point(pos, this.partMass, true, this.damping, this.stepSize);
 
 				row.push(point);
 			}
@@ -30,11 +31,11 @@ function Cloth(numPoints, damping, stepSize){
 	this.getClosestPoint = function(mousePos){
 		var minDist = this.points[0][0].position.distanceTo(mousePos),
 			minPoint = [0,0],
-			len1 = this.points.length, //slightly faster to cache the length
-			len2 = this.points[0].length;
+			rows = this.points.length, //slightly faster to cache the length
+			cols = this.points[0].length;
 
-		for (var i = 0; i < len1; i++){
-			for (var j = 0; j < len2; j++){
+		for (var i = 0; i < rows; i++){
+			for (var j = 0; j < cols; j++){
 				var dist = this.points[i][j].position.distanceTo(mousePos);
 				if (dist < minDist){
 					minDist = dist;
@@ -47,43 +48,76 @@ function Cloth(numPoints, damping, stepSize){
 	}
 
 	this.addPointsToScene = function(scene){
-		var len1 = this.points.length, //slightly faster to cache the length
-			len2 = this.points[0].length;
+		var rows = this.points.length, //slightly faster to cache the length
+			cols = this.points[0].length;
 
-		for (var i = 0; i < len1; i++){
-			for (var j = 0; j < len2; j++){
+		for (var i = 0; i < rows; i++){
+			for (var j = 0; j < cols; j++){
 				scene.add(this.points[i][j].sphere);
 			}
 		}
 	}
 
 	this.satisfyConstraints = function(){
-		var len1 = this.points.length, 
-			len2 = this.points[0].length;	
+		var rows = this.points.length, 
+			cols = this.points[0].length;	
 
-		for (var a = 0; a < 10; a ++){
-			for (var i = 0; i < len1 - 1; i++){
-				for (var j = 0; j < len2; j++){
+		for (var a = 0; a < this.numConstraints; a ++){
+			for (var i = 0; i < rows; i++){
+				for (var j = 0; j < cols; j++){
+					this.structConstraints();
 
-					var p1 = this.points[i][j],
-						p2 = this.points[i][j + 1];
-
-					console.log(p2.position);
-					var dist = p1.position.distanceTo(p2.position);
-
-					var newVect = new THREE.Vector3(0, 0, 0);
-
-					newVect.subVectors(p1, p2);
-					newVect.multiplyScalar(1 - this.restLength / dist);
-					newVect.multiplyScalar(this.damping);
-
-					p1.add(newVect);
-					newVect.negate();
-					p2.add(newVect);
 				}
 			}
 		}
-	}	
+	}
+
+	//Structural constraints are between neighbors in same row or column
+	this.structConstraints = function(i, j){
+		var rows = this.points.length, 
+			cols = this.points[0].length;
+
+		if (j < cols - 1){
+			var p1 = this.points[i][j],
+				p2 = this.points[i][j + 1];
+			this.constrainPoints(p1, p2);
+		}
+
+		if (i < rows - 1){
+			var p1 = this.points[i][j],
+				p2 = this.points[i + 1][j];
+			this.constrainPoints(p1, p2);
+		}
+	}
+
+	//Shear constraints are between diagonal neighbors
+	this.shearConstraints = function(i, j){
+
+	}
+
+	//Bend constraints are any point you could reach by "jumping" a neighbor point
+	//analagous to jumping a piece in checkers
+	this.bendConstraints = function(i, j){
+
+	}
+
+	this.constrainPoints = function(p1, p2){
+		var dist = p1.position.distanceTo(p2.position),
+			newVect = new THREE.Vector3(0, 0, 0);
+
+		newVect.subVectors(p2.position, p1.position);
+		newVect.multiplyScalar(1 - this.restLength / dist);
+		newVect.multiplyScalar(this.damping);
+		newVect.multiplyScalar(0.5);
+
+		if (p1.movable){
+			p1.position.add(newVect);
+		}
+		if (p2.movable){
+			newVect.negate();
+			p2.position.add(newVect);
+		}
+	}
 }
 
 function Point(pos, mass, movable, damping, stepSize){

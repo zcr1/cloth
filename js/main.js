@@ -13,7 +13,7 @@ $(function(){
 	clothSim.renderInit();
 	clothSim.eventListeners();
 	
-	var damping = 0.5,
+	var damping = 0.1,
 		stepSize = 1;
 
 	var cloth = new Cloth([10, 10], damping, stepSize);
@@ -98,6 +98,8 @@ function ClothSim(container, width, height){
 				if (event.button == 0){
 					if (self.drag){
 						self.drag = false;
+						self.dragPoint.movable = true;
+						self.dragPoint = null;
 					}
 					else{
 						var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
@@ -107,6 +109,7 @@ function ClothSim(container, width, height){
 						
 						self.dragPoint = self.cloth.getClosestPoint(self.mousePos);
 						self.dragPoint.updatePos(self.mousePos);
+						self.dragPoint.movable = false;
 					}
 				}
 			}

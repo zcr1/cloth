@@ -8,16 +8,18 @@ function Cloth(numPoints, damping, stepSize){
 	this.restLength = 15; //rest length of structural constraint
 	this.constraints = [];
 	this.points = [];
+	this.triangles = [];
 	this.partMass = 1;
 	this.partSize = 10;
 	this.damping = damping;
 	this.stepSize = stepSize;
 	this.numConstraints = 10; //how many times to run each constrain loop
-	this.gravity = new THREE.Vector3(0, -15, 0);
+	this.gravity = new THREE.Vector3(0, -20, 0);
+	this.wind = new THREE.Vector3(0, 0, 0);
 	this.maxStretchLen = 60;
 
 	this.createPoints = function(){
-		//THREE.js Canvas starts with position 0 in middle, put half of cloth on each side of x
+		//THREE.js Canvas starts with x=0 in middle and y=0 at bottom
 		for (var i = -(this.numParts[0] / 2); i < this.numParts[0] / 2; i++){
 			var row = [];
 
@@ -33,6 +35,34 @@ function Cloth(numPoints, damping, stepSize){
 			}
 			this.points.push(row);
 		}
+	}
+
+	//Create triangles in the cloth
+	this.createTriangles = function(){
+		var rows = this.points.length, 
+			cols = this.points[0].length;
+		
+		for (var i = 0; i < rows; i ++){
+			for (var j = 0; j < cols; j ++){
+				if ((i < rows - 1) && (j < cols - 1)){
+
+					//Triangle 1
+					var p1 = this.points[i][j],
+						p2 = this.points[i][j + 1],
+						p3 = this.points[i+1][j];
+
+					var triangle = new Triangle(p1, p2, p3);
+					this.triangles.push(triangle);
+
+					//Triangle 2
+					p1 = p2;
+					p2 = this.points[i + 1][j + 1];
+
+					triangle = new Triangle(p1, p2, p3);
+					this.triangles.push(triangle);
+				}
+			}
+		}		
 	}
 
 	//Calculate the shear and bending rest lengths
@@ -90,15 +120,51 @@ function Cloth(numPoints, damping, stepSize){
 		}
 	}
 
+	this.addTrianglesToScene = function(scene){
+		for (var i = 0; i < this.triangles.length; i++){
+			scene.add(this.triangles[i].triMesh);
+		}
+	}
+
 	this.timeStep = function(){
 		var rows = this.points.length, 
 			cols = this.points[0].length;
 		
 		for (var i = 0; i < rows; i++){	
 			for (var j = 0; j < cols; j++){
+				if (this.points[i][j].movable){
+						this.points[i][j].addForce(this.gravity);
+				}
 				this.points[i][j].timeStep();
 			}
-		}			
+		}
+
+		for (var i = 0; i < this.triangles.length; i++){
+			this.triangles[i].timeStep();
+			//this.addWind(this.triangles[i]);
+		}	
+	}
+
+
+	this.addWind = function(triangle){
+		var side1 = new THREE.Vector3(0, 0, 0);
+		side1.subVectors(triangle.p1.position, triangle.p2.position);
+
+		var side2 = new THREE.Vector3(0, 0, 0);
+		side2.subVectors(triangle.p3.position, triangle.p2.position);
+
+		side2.cross(side1);
+
+		var normal = side2;
+		normal.normalize();
+
+		normal.dot(this.wind);
+
+		normal.multiplyScalar(10);
+
+		triangle.p1.addForce(normal);
+		triangle.p2.addForce(normal);
+		triangle.p3.addForce(normal);
 	}
 
 	this.satisfyConstraints = function(){
@@ -108,46 +174,12 @@ function Cloth(numPoints, damping, stepSize){
 		for (var a = 0; a < this.numConstraints; a ++){
 			for (var i = 0; i < rows; i++){
 				for (var j = 0; j < cols; j++){
-					//this.shearConstraints(i, j);
-					//this.bendConstraints(i, j);
+					this.shearConstraints(i, j);
+					this.bendConstraints(i, j);
 					this.structConstraints(i, j);
 				}
 			}
 		}
-	}
-
-	//Check distance between neighbors and limit it 
-	this.checkDistance = function(p1, p2){
-/*
-		var dist = p1.position.distanceTo(p2.position);
-
-		if (dist > this.maxStretchLen){
-			var newVect = new THREE.Vector3(0, 0, 0);
-
-			newVect.subVectors(p2.position, p1.position);
-			newVect.setLength(this.maxStretchLen);
-			newVect.multiplyScalar(0.5);
-			
-			if (p1.movable && p2.movable){
-				p1.setFreeze(true);
-				p2.setFreeze(true);
-				p1.position.add(newVect);
-				newVect.negate();
-				p2.position.add(newVect);
-				
-			}
-			else{
-				if (p1.movable) {
-					p1.setFreeze(true);
-					p1.position.add(newVect);
-				}
-				if (p2.movable){
-					p2.setFreeze(true);
-					newVect.negate();
-					p2.position.add(newVect);
-				}
-			}
-		}*/	
 	}
 
 	//Structural constraints are between neighbors in same row or column
@@ -160,7 +192,6 @@ function Cloth(numPoints, damping, stepSize){
 				p2 = this.points[i][j + 1];
 
 			this.constrainPoints(p1, p2, this.restLength);
-			this.checkDistance(p1, p2);
 
 		}
 
@@ -169,21 +200,18 @@ function Cloth(numPoints, damping, stepSize){
 				p2 = this.points[i][j - 1];
 
 			this.constrainPoints(p1, p2, this.restLength);
-			this.checkDistance(p1, p2);
 		}
 
 		if (i < rows - 1){
 			var p1 = this.points[i][j],
 				p2 = this.points[i + 1][j];
 			this.constrainPoints(p1, p2, this.restLength);
-			this.checkDistance(p1, p2);
 		}
 
 		if (i > 0){
 			var p1 = this.points[i][j],
 				p2 = this.points[i - 1][j];
 			this.constrainPoints(p1, p2, this.restLength);
-			this.checkDistance(p1, p2);
 
 		}
 	}
@@ -198,15 +226,13 @@ function Cloth(numPoints, damping, stepSize){
 				//NorthWest
 				p1 = this.points[i][j];
 				p2 = this.points[i - 1][j - 1];
-				this.constrainPoints(p1, p2, this.shearLength);
-				this.checkDistance(p1, p2);		
+				this.constrainPoints(p1, p2, this.shearLength);	
 			}
 			if (i < rows - 1){
 				//NorthEast
 				p1 = this.points[i][j];
 				p2 = this.points[i + 1][j - 1];
 				this.constrainPoints(p1, p2, this.shearLength);
-				this.checkDistance(p1, p2);
 			}
 		}
 
@@ -216,14 +242,12 @@ function Cloth(numPoints, damping, stepSize){
 				p1 = this.points[i][j];
 				p2 = this.points[i - 1][j + 1];
 				this.constrainPoints(p1, p2, this.shearLength);
-				this.checkDistance(p1, p2);		
 			}
 			if (i < rows - 1){
 				//SouthEast
 				p1 = this.points[i][j];
 				p2 = this.points[i + 1][j + 1];
 				this.constrainPoints(p1, p2, this.shearLength);
-				this.checkDistance(p1, p2);
 			}			
 		}
 	}
@@ -300,45 +324,32 @@ function Cloth(numPoints, damping, stepSize){
 		newVect.subVectors(p2.position, p1.position);
 		
 		newVect.multiplyScalar(this.damping);
-		newVect.multiplyScalar(0.5);
 		newVect.multiplyScalar(1 - restLength / dist);
 
+		if (p1.click || p2.click) newVect.multiplayScalar(10);
+
 		if ((p1.movable && p2.movable) && !(p1.getFreeze() || p2.getFreeze())){
-			//var old = p1.position.clone();
-			//p1.addForce(newVect);
-			//p1.updatePos(newVect);
 			newVect.multiplyScalar(0.5);
-			p1.position.add(newVect);
+			p1.addForce(newVect);
+			//p1.position.add(newVect);
+
 			newVect.negate();
-			p2.position.add(newVect);
+			//p2.position.add(newVect);
+			p2.addForce(newVect);
 		}
 		else{
 			if (p1.movable && !p1.getFreeze()){
-				p1.position.add(newVect);
+				//p1.position.add(newVect);
+				p1.addForce(newVect);
 			}
+
 			if (p2.movable && !p2.getFreeze()){
-				//var old = p2.position.clone();
 				newVect.negate();
-				p2.position.add(newVect);
-				//p2.updatePos(newVect);
-				//p2.addForce(newVect);
+				//p2.position.add(newVect);
+				p2.addForce(newVect);
 			}
 		}
 	}
 
-	this.applyGravity = function(){
-		var rows = this.points.length, 
-			cols = this.points[0].length;	
-
-		for (var a = 0; a < this.numConstraints; a ++){
-			for (var i = 0; i < rows; i++){
-				for (var j = 0; j < cols; j++){
-					if(this.points[i][j].movable)	{
-						this.points[i][j].addForce(this.gravity);
-					}
-				}	
-			}
-		}
-	}
 }
 

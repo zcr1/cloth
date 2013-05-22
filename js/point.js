@@ -31,37 +31,37 @@ function Point(pos, mass, movable, damping, stepSize){
 	}
 
 	this.updatePos = function(pos){
-		this.position = pos;
+
+		this.position.x = pos.x;
+		this.position.y = pos.y;
+		this.position.z = pos.z;
 		this.sphere.position = pos;
-		//var newVect = new THREE.Vector3(0, 0, 0);
-		//newVect.subVectors(pos, this.position);
-		//newVect.multiplyScalar(20);
-		//this.mouseForce = newVect;
-		//this.addForce(newVect);
 	}
 	
 	this.timeStep = function()
 	{
 		if (this.movable && !this.getFreeze())
-		{
-			var temp = this.position;
-			this.position.y += this.acceleration.y * this.stepSize;
-			//this.position.z += -10
-			//this.position.x += 20
-			/*this.position.x = this.position.x + (this.position.x - this.oldPos.x) * (1.0 - this.damping) +
-						(this.acceleration.x * this.stepSize);
-			this.position.y = this.position.y + (this.position.y - this.oldPos.y) * (1.0 - this.damping) +
-						(this.acceleration.y * this.stepSize);
-			this.position.y -= 1;
-			this.position.z = this.position.z + (this.position.z - this.oldPos.z) * (1.0 - this.damping) +
-						(this.acceleration.z * this.stepSize);
-			this.oldPos = temp;*/
-			this.acceleration = new THREE.Vector3(0, 0, 0); //acceleration is reset since it has been translated into a change in position
-			this.sphere.position = this.position;
+		{		
+			var previous = this.position;
 
+			this.position.x = this.position.x + ((this.position.x - this.oldPos.x) * 1.1) * (1.0 - this.damping) +
+						(this.acceleration.x * this.stepSize);
+			this.position.y = this.position.y + ((this.position.y - this.oldPos.y) * 1.1) * (1.0 - this.damping) +
+						(this.acceleration.y * this.stepSize);
+			this.position.z = this.position.z + ((this.position.z - this.oldPos.z) * 1.1) * (1.0 - this.damping) +
+						(this.acceleration.z * this.stepSize); 
+
+			this.oldPos = previous;
+			//this.acceleration = new THREE.Vector3(0, 0, 0); //acceleration is reset since it has been translated into a change in position
+			this.acceleration.multiplyScalar(0.8);
+			this.sphere.position = this.position;
+		
 			this.sphere.geometry.verticesNeedUpdate = true;
+		
 			this.sphere.geometry.normalsNeedUpdate = true;
+
 		}
+
 
 		this.setFreeze(false);
 	}

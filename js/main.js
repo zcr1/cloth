@@ -14,10 +14,10 @@ $(function(){
 	clothSim.renderInit();
 	clothSim.eventListeners();
 	
-	var damping = .75,
-		stepSize = 0.003;
+	var damping = 1.5,
+		stepSize = .1;
 
-	var cloth = new Cloth([20, 20], damping, stepSize);
+	var cloth = new Cloth([12, 12], damping, stepSize);
 	cloth.createPoints()
 	clothSim.addCloth(cloth);
 

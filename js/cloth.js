@@ -13,8 +13,8 @@ function Cloth(numPoints, damping, stepSize){
 	this.damping = damping;
 	this.stepSize = stepSize;
 	this.numConstraints = 1; //how many times to run each constrain loop
-	this.gravity = new THREE.Vector3(0, -300, 0);
-	this.maxStretchLen = 80;
+	this.gravity = new THREE.Vector3(0, -10, 0);
+	this.maxStretchLen = 60;
 
 	this.createPoints = function(){
 		//THREE.js Canvas starts with position 0 in middle, put half of cloth on each side of x
@@ -108,12 +108,39 @@ function Cloth(numPoints, damping, stepSize){
 		for (var a = 0; a < this.numConstraints; a ++){
 			for (var i = 0; i < rows; i++){
 				for (var j = 0; j < cols; j++){
-					this.structConstraints(i, j);
 					this.shearConstraints(i, j);
 					this.bendConstraints(i, j);
+					this.structConstraints(i, j);
 				}
 			}
 		}
+	}
+
+	//Check distance between neighbors and limit it 
+	this.checkDistance = function(i, j){
+		var dist = p1.position.distanceTo(p2.position);
+
+		if (dist > this.maxStretchLen){
+			var newVect = new THREE.Vector3(0, 0, 0);
+
+			newVect.subVectors(p2.position, p1.position);
+			newVect.setLength(this.maxStretchLen);
+			newVect.multiplyScalar(1);
+			
+			if (p1.movable && p2.movable){
+				p1.position.add(newVect);
+				newVect.negate();
+				p2.position.add(newVect);
+				
+			}
+			else{
+				if (p1.movable) p1.position.add(newVect);
+				if (p2.movable){
+					newVect.negate();
+					p2.position.add(newVect);
+				}
+			}
+		}	
 	}
 
 	//Structural constraints are between neighbors in same row or column
@@ -126,12 +153,31 @@ function Cloth(numPoints, damping, stepSize){
 				p2 = this.points[i][j + 1];
 
 			this.constrainPoints(p1, p2, this.restLength);
+			this.checkDistance(p1, p2);
+
+		}
+
+		if (j > 0){
+			var p1 = this.points[i][j],
+				p2 = this.points[i][j - 1];
+
+			this.constrainPoints(p1, p2, this.restLength);
+			this.checkDistance(p1, p2);
 		}
 
 		if (i < rows - 1){
 			var p1 = this.points[i][j],
 				p2 = this.points[i + 1][j];
 			this.constrainPoints(p1, p2, this.restLength);
+			this.checkDistance(p1, p2);
+		}
+
+		if (i > 0){
+			var p1 = this.points[i][j],
+				p2 = this.points[i - 1][j];
+			this.constrainPoints(p1, p2, this.restLength);
+			this.checkDistance(p1, p2);
+
 		}
 	}
 
@@ -145,13 +191,15 @@ function Cloth(numPoints, damping, stepSize){
 				//NorthWest
 				p1 = this.points[i][j];
 				p2 = this.points[i - 1][j - 1];
-				this.constrainPoints(p1, p2, this.shearLength);		
+				this.constrainPoints(p1, p2, this.shearLength);
+				this.checkDistance(p1, p2);		
 			}
 			if (i < rows - 1){
 				//NorthEast
 				p1 = this.points[i][j];
 				p2 = this.points[i + 1][j - 1];
 				this.constrainPoints(p1, p2, this.shearLength);
+				this.checkDistance(p1, p2);
 			}
 		}
 
@@ -160,13 +208,15 @@ function Cloth(numPoints, damping, stepSize){
 				//SouthWest
 				p1 = this.points[i][j];
 				p2 = this.points[i - 1][j + 1];
-				this.constrainPoints(p1, p2, this.shearLength);		
+				this.constrainPoints(p1, p2, this.shearLength);
+				this.checkDistance(p1, p2);		
 			}
 			if (i < rows - 1){
 				//SouthEast
 				p1 = this.points[i][j];
 				p2 = this.points[i + 1][j + 1];
 				this.constrainPoints(p1, p2, this.shearLength);
+				this.checkDistance(p1, p2);
 			}			
 		}
 	}
@@ -245,19 +295,27 @@ function Cloth(numPoints, damping, stepSize){
 		newVect.multiplyScalar(this.damping);
 		newVect.multiplyScalar(0.5);
 
-		//if(p1.mouse || p2.mouse) newVect.multiplyScalar(10);
-		if (p1.movable){
+		//if(p1.mouse || p2.mouse) newVect.multiplyScalar(3);
+		if (p1.movable && p2.movable){
 			//var old = p1.position.clone();
 			//p1.addForce(newVect);
 			//p1.updatePos(newVect);
+			newVect.multiplyScalar(0.5);
 			p1.position.add(newVect);
-		}
-		if (p2.movable){
-			//var old = p2.position.clone();
 			newVect.negate();
 			p2.position.add(newVect);
-			//p2.updatePos(newVect);
-			//p2.addForce(newVect);
+		}
+		else{
+			if (p1.movable){
+				p1.position.add(newVect);
+			}
+			if (p2.movable){
+				//var old = p2.position.clone();
+				newVect.negate();
+				p2.position.add(newVect);
+				//p2.updatePos(newVect);
+				//p2.addForce(newVect);
+			}
 		}
 	}
 

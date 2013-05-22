@@ -12,8 +12,8 @@ function Cloth(numPoints, damping, stepSize){
 	this.partSize = 10;
 	this.damping = damping;
 	this.stepSize = stepSize;
-	this.numConstraints = 1; //how many times to run each constrain loop
-	this.gravity = new THREE.Vector3(0, -10, 0);
+	this.numConstraints = 15; //how many times to run each constrain loop
+	this.gravity = new THREE.Vector3(0, -15, 0);
 	this.maxStretchLen = 60;
 
 	this.createPoints = function(){
@@ -22,7 +22,7 @@ function Cloth(numPoints, damping, stepSize){
 			var row = [];
 
 			for (var j = 0; j < this.numParts[1]; j++){
-				var pos = new THREE.Vector3(i * this.restLength, j * this.restLength, 0),
+				var pos = new THREE.Vector3(i * this.restLength, j * this.restLength + 200, 0),
 					point = new Point(pos, this.partMass, true, this.damping, this.stepSize);
 
 				if (this.cornerCheck(i, j)){
@@ -108,8 +108,8 @@ function Cloth(numPoints, damping, stepSize){
 		for (var a = 0; a < this.numConstraints; a ++){
 			for (var i = 0; i < rows; i++){
 				for (var j = 0; j < cols; j++){
-					this.shearConstraints(i, j);
-					this.bendConstraints(i, j);
+					//this.shearConstraints(i, j);
+					//this.bendConstraints(i, j);
 					this.structConstraints(i, j);
 				}
 			}
@@ -117,7 +117,8 @@ function Cloth(numPoints, damping, stepSize){
 	}
 
 	//Check distance between neighbors and limit it 
-	this.checkDistance = function(i, j){
+	this.checkDistance = function(p1, p2){
+/*
 		var dist = p1.position.distanceTo(p2.position);
 
 		if (dist > this.maxStretchLen){
@@ -125,22 +126,28 @@ function Cloth(numPoints, damping, stepSize){
 
 			newVect.subVectors(p2.position, p1.position);
 			newVect.setLength(this.maxStretchLen);
-			newVect.multiplyScalar(1);
+			newVect.multiplyScalar(0.5);
 			
 			if (p1.movable && p2.movable){
+				p1.setFreeze(true);
+				p2.setFreeze(true);
 				p1.position.add(newVect);
 				newVect.negate();
 				p2.position.add(newVect);
 				
 			}
 			else{
-				if (p1.movable) p1.position.add(newVect);
+				if (p1.movable) {
+					p1.setFreeze(true);
+					p1.position.add(newVect);
+				}
 				if (p2.movable){
+					p2.setFreeze(true);
 					newVect.negate();
 					p2.position.add(newVect);
 				}
 			}
-		}	
+		}*/	
 	}
 
 	//Structural constraints are between neighbors in same row or column
@@ -291,12 +298,12 @@ function Cloth(numPoints, damping, stepSize){
 			newVect = new THREE.Vector3(0, 0, 0);
 
 		newVect.subVectors(p2.position, p1.position);
-		newVect.multiplyScalar(1 - restLength / dist);
+		
 		newVect.multiplyScalar(this.damping);
 		newVect.multiplyScalar(0.5);
+		newVect.multiplyScalar(1 - restLength / dist);
 
-		//if(p1.mouse || p2.mouse) newVect.multiplyScalar(3);
-		if (p1.movable && p2.movable){
+		if ((p1.movable && p2.movable) && !(p1.getFreeze() || p2.getFreeze())){
 			//var old = p1.position.clone();
 			//p1.addForce(newVect);
 			//p1.updatePos(newVect);
@@ -306,10 +313,10 @@ function Cloth(numPoints, damping, stepSize){
 			p2.position.add(newVect);
 		}
 		else{
-			if (p1.movable){
+			if (p1.movable && !p1.getFreeze()){
 				p1.position.add(newVect);
 			}
-			if (p2.movable){
+			if (p2.movable && !p2.getFreeze()){
 				//var old = p2.position.clone();
 				newVect.negate();
 				p2.position.add(newVect);

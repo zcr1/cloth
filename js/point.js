@@ -7,6 +7,7 @@ function Point(pos, mass, movable, damping, stepSize){
 	this.damping = damping;
 	this.stepSize = stepSize;
 	this.radius = 2.5;
+	this.freeze = false;
 
 	this.createSphere = function(){
 		var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
@@ -21,6 +22,14 @@ function Point(pos, mass, movable, damping, stepSize){
 		this.acceleration.add(f);
 	}
 
+	this.setFreeze = function(bool){
+		this.frozen = bool;
+	}
+
+	this.getFreeze = function(){
+		return this.frozen;
+	}
+
 	this.updatePos = function(pos){
 		this.position = pos;
 		this.sphere.position = pos;
@@ -33,10 +42,10 @@ function Point(pos, mass, movable, damping, stepSize){
 	
 	this.timeStep = function()
 	{
-		if (this.movable)
+		if (this.movable && !this.getFreeze())
 		{
 			var temp = this.position;
-			//this.position.y += this.acceleration.y * this.stepSize;
+			this.position.y += this.acceleration.y * this.stepSize;
 			/*this.position.x = this.position.x + (this.position.x - this.oldPos.x) * (1.0 - this.damping) +
 						(this.acceleration.x * this.stepSize);
 			this.position.y = this.position.y + (this.position.y - this.oldPos.y) * (1.0 - this.damping) +
@@ -51,5 +60,7 @@ function Point(pos, mass, movable, damping, stepSize){
 			this.sphere.geometry.verticesNeedUpdate = true;
 			this.sphere.geometry.normalsNeedUpdate = true;
 		}
+
+		this.setFreeze(false);
 	}
 }

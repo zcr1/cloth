@@ -70,7 +70,7 @@ function ClothSim(container, width, height){
 	this.animate = function(){
 		this.cloth.timeStep();
 		this.cloth.satisfyConstraints();
-		if(!this.drag) this.cloth.applyGravity();
+		this.cloth.applyGravity();
 		requestAnimationFrame(this.animate.bind(this));
 		this.render();
 	}

@@ -46,6 +46,8 @@ function Point(pos, mass, movable, damping, stepSize){
 		{
 			var temp = this.position;
 			this.position.y += this.acceleration.y * this.stepSize;
+			//this.position.z += -10
+			//this.position.x += 20
 			/*this.position.x = this.position.x + (this.position.x - this.oldPos.x) * (1.0 - this.damping) +
 						(this.acceleration.x * this.stepSize);
 			this.position.y = this.position.y + (this.position.y - this.oldPos.y) * (1.0 - this.damping) +

@@ -12,7 +12,7 @@ function Cloth(numPoints, damping, stepSize){
 	this.partSize = 10;
 	this.damping = damping;
 	this.stepSize = stepSize;
-	this.numConstraints = 15; //how many times to run each constrain loop
+	this.numConstraints = 10; //how many times to run each constrain loop
 	this.gravity = new THREE.Vector3(0, -15, 0);
 	this.maxStretchLen = 60;
 

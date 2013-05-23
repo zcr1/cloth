@@ -47,7 +47,7 @@ $(function(){
 			cloth.updateGravity(ui.value);
 		}
 	});
-	$gravityVal.val($gravity.slider("value"));
+	$gravityVal.val($gravityVal.slider("value"));
 
 
 	sim.addCloth(cloth);

@@ -11,6 +11,7 @@
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
+        <link rel="stylesheet" href="css/jquery-ui-1.10.3.custom.min.css">
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
         
 
@@ -24,23 +25,37 @@
             <h2>Cloth Simulator</h2>
         </header>
 
-        <div id="left">
-            <p>lots of text will go here</p>
-            <p>lots of text will go here</p>
-            <p>lots of text will go here</p>
-            <p>lots of text will go here</p>
-            <p>lots of text will go here</p>
-            <p>lots of text will go here</p>
-        </div>
-        <div id="right">
-            <div id="container"></div>
-        </div>
-        
+        <section>
+            <div id="left">
+                <p>This cloth simulation is implemented using the <a href="http://threejs.org/">three.js</a> 3D WebGL library. </p>
+
+                <div id="controls">
+                    <p>left click: fire cannon</p>
+                    <p>right click: pan the camera</p>
+                    <p>mouse wheel: zoom in / out</p>
+
+                </div>
+
+                <input type="text" id="gravityVal"/>
+                <div id="gravitySlider"></div>
+
+            </div>
+
+            <div id="right">
+                <div id="container"></div>
+            </div>
+
+        </section>
+
+        <footer>
+            <p>The footer text will go here</p>
+        </footer>
 
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
         <script src="js/vendor/three.min.js"></script>
         <script src="js/vendor/jquery.mousewheel.js"></script>
+        <script src="js/vendor/jquery-ui-1.10.3.custom.min.js"></script>
         <script src="js/plugins.js"></script>
         <script src="js/cloth.js"></script>
         <script src="js/point.js"></script>

@@ -13,9 +13,9 @@ function Cloth(numPoints, damping, stepSize){
 	this.partSize = 10;
 	this.damping = damping;
 	this.stepSize = stepSize;
-	this.numConstraints = 10; //how many times to run each constrain loop
-	this.gravity = new THREE.Vector3(0, -20, 0);
-	this.wind = new THREE.Vector3(0, 0, 0);
+	this.numConstraints = 5; //how many times to run each constrain loop
+	this.gravity = new THREE.Vector3(0, -10, 0);
+	this.wind = new THREE.Vector3(-5, 0, 1);
 
 	this.createPoints = function(left, bottom){
 		//THREE.js Canvas starts with x=0 in middle and y=0 at bottom
@@ -88,10 +88,10 @@ function Cloth(numPoints, damping, stepSize){
 		if ((i == -(this.numParts[0] / 2) + 1) && (j == (this.numParts[1] - 1))){
 			return true;
 		}
-
-		if ((i == (this.numParts[0] / 2 - 2)) && (j == (this.numParts[1] - 1))){
+		if ((i == (this.numParts[0] / 2) - 2) && (j == (this.numParts[1] - 1))){
 			return true;
 		}
+		
 		return false;		
 	}
 
@@ -147,26 +147,31 @@ function Cloth(numPoints, damping, stepSize){
 
 		for (var i = 0; i < this.triangles.length; i++){
 			this.triangles[i].timeStep();
-			//this.addWind(this.triangles[i]);
+			this.addWind(this.triangles[i]);
 		}	
 	}
 
 
+	this.setWind = function(wind){
+		this.wind = wind
+	}
+
 	this.addWind = function(triangle){
 		var side1 = new THREE.Vector3(0, 0, 0);
-		side1.subVectors(triangle.p1.position, triangle.p2.position);
+		side1.subVectors(triangle.p2.position, triangle.p1.position);
 
 		var side2 = new THREE.Vector3(0, 0, 0);
-		side2.subVectors(triangle.p3.position, triangle.p2.position);
+		side2.subVectors(triangle.p3.position, triangle.p1.position);
 
-		side2.cross(side1);
+		side1.cross(side2);
 
-		var normal = side2;
+		var normal = side1;
 		normal.normalize();
 
-		normal.dot(this.wind);
+		var d = normal.dot(this.wind);	
 
-		normal.multiplyScalar(10);
+		normal.multiplyScalar(d);
+		normal.multiplyScalar(5);
 
 		triangle.p1.addForce(normal);
 		triangle.p2.addForce(normal);
@@ -329,32 +334,34 @@ function Cloth(numPoints, damping, stepSize){
 
 		newVect.subVectors(p2.position, p1.position);
 		
-		newVect.multiplyScalar(this.damping);
+		//newVect.multiplyScalar(this.damping);
 		newVect.multiplyScalar(1 - restLength / dist);
-
-		if (p1.click || p2.click) newVect.multiplayScalar(10);
 
 		if ((p1.movable && p2.movable) && !(p1.getFreeze() || p2.getFreeze())){
 			newVect.multiplyScalar(0.5);
-			p1.addForce(newVect);
-			//p1.position.add(newVect);
+			//p1.addForce(newVect);
+			p1.position.add(newVect);
 
 			newVect.negate();
-			//p2.position.add(newVect);
-			p2.addForce(newVect);
+			p2.position.add(newVect);
+			//p2.addForce(newVect);
 		}
 		else{
 			if (p1.movable && !p1.getFreeze()){
-				//p1.position.add(newVect);
-				p1.addForce(newVect);
+				p1.position.add(newVect);
+				//p1.addForce(newVect);
 			}
 
 			if (p2.movable && !p2.getFreeze()){
 				newVect.negate();
-				//p2.position.add(newVect);
-				p2.addForce(newVect);
+				p2.position.add(newVect);
+				//p2.addForce(newVect);
 			}
 		}
+	}
+
+	this.updateGravity = function(val){
+		this.gravity = new THREE.Vector3(0, val, 0);
 	}
 
 }

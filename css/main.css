@@ -98,26 +98,54 @@ textarea {
 
 header{
     height: 90px;
-    margin-left: 5%;
+    margin-left: 12%;
+    margin-top: 2.5%;
 }
+
+footer{
+    margin: auto;
+    margin: 0.05em;
+    background-color: #F0F0F0;
+    padding: 1em;
+    font-size: 80%;
+}
+
+
+section{
+    min-width: 700px;
+    height: 700px;
+    width: 100%;
+    margin-bottom: 3em;
+}
+
 #left{
-    width: 30%;
+    width: 25%;
     height: 80%;
     float:left;
-    margin-left: 5%;
+    margin-left: 12%;
+    height: 75%;
+
 }
 
 #right{
-    width: 70%;
-    height: 80%;
+    width: 50%;
+    margin-left: 40%;
+    height: 75%;
 }
 #container{
-    display: inline-block;
+    
     margin: auto;
-    border: 1px solid #000000;
-    width: 500px;
-    height: 500px;
+    border: 1px solid #DDDDDD;
+    min-width: 300px;
+    min-height: 300px;
+    height: 100%;
 }
+
+
+#gravitySlider{
+    height: 100px;
+}
+
 
 /*#leftContainer{
     float: left;

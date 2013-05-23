@@ -134,8 +134,6 @@ function ClothSim(container, width, height, left, bottom){
 	this.cameraZoom = function(delta){
 		if (delta > 0) this.camera.position.z -= 30;
 		else if (delta < 0) this.camera.position.z += 30;
-
-		console.log(this.camera.position.z);
 	}
 
 	//Is the position within the canvas element?
@@ -148,8 +146,11 @@ function ClothSim(container, width, height, left, bottom){
 	}
 
 	//Extends a ray from camera position until the z-coordinate of ray is 0
-	//Thanks stackoverflow!
 	this.getMousePos = function(mousePos){
+		//first transate the mousePos given the current canvas position
+		mousePos.x -= this.left;
+		mousePos.y -= (this.bottom - this.height);
+
 		var vector = new THREE.Vector3((mousePos.x / this.width ) * 2 - 1,
 										-(mousePos.y / this.height ) * 2 + 1, 
 										0.5 );

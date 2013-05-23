@@ -53,7 +53,7 @@ function Point(pos, mass, movable, damping, stepSize){
 
 			this.oldPos = previous;
 			//this.acceleration = new THREE.Vector3(0, 0, 0); //acceleration is reset since it has been translated into a change in position
-			this.acceleration.multiplyScalar(0.8);
+			this.acceleration.multiplyScalar(0.75);
 			this.sphere.position = this.position;
 		
 			this.sphere.geometry.verticesNeedUpdate = true;

@@ -16,15 +16,14 @@ function Cloth(numPoints, damping, stepSize){
 	this.numConstraints = 10; //how many times to run each constrain loop
 	this.gravity = new THREE.Vector3(0, -20, 0);
 	this.wind = new THREE.Vector3(0, 0, 0);
-	this.maxStretchLen = 60;
 
-	this.createPoints = function(){
+	this.createPoints = function(left, bottom){
 		//THREE.js Canvas starts with x=0 in middle and y=0 at bottom
 		for (var i = -(this.numParts[0] / 2); i < this.numParts[0] / 2; i++){
 			var row = [];
 
 			for (var j = 0; j < this.numParts[1]; j++){
-				var pos = new THREE.Vector3(i * this.restLength, j * this.restLength + 200, 0),
+				var pos = new THREE.Vector3(i * this.restLength  , j * this.restLength + 100, 0),
 					point = new Point(pos, this.partMass, true, this.damping, this.stepSize);
 
 				if (this.cornerCheck(i, j)){
@@ -76,7 +75,7 @@ function Cloth(numPoints, damping, stepSize){
 	this.calculateRestLengths();
 
 
-	//Is the point at these coordinates top left or right
+	//Is the point top left, top left + 1, or right, right + 1
 	this.cornerCheck = function(i, j){
 		if ((i == -(this.numParts[0] / 2)) && (j == (this.numParts[1] - 1))){
 			return true;
@@ -86,6 +85,13 @@ function Cloth(numPoints, damping, stepSize){
 			return true;
 		}
 
+		if ((i == -(this.numParts[0] / 2) + 1) && (j == (this.numParts[1] - 1))){
+			return true;
+		}
+
+		if ((i == (this.numParts[0] / 2 - 2)) && (j == (this.numParts[1] - 1))){
+			return true;
+		}
 		return false;		
 	}
 

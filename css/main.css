@@ -95,17 +95,36 @@ textarea {
 /* ==========================================================================
    Author's custom styles
    ========================================================================== */
-#body{
-    margin: auto;
-    width: 800px;
 
+header{
+    height: 90px;
+    margin-left: 5%;
+}
+#left{
+    width: 30%;
+    height: 80%;
+    float:left;
+    margin-left: 5%;
+}
+
+#right{
+    width: 70%;
+    height: 80%;
 }
 #container{
-    /*text-align: center;   */
+    display: inline-block;
+    margin: auto;
     border: 1px solid #000000;
-    width: 700px;
-    height: 700px;
+    width: 500px;
+    height: 500px;
 }
+
+/*#leftContainer{
+    float: left;
+    width: 400px;
+    height: 400px;
+    border: 1px solid #000000;
+}*/
 
 /* ==========================================================================
    Helper classes

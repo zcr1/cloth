@@ -1,8 +1,9 @@
-function ClothSim(container, width, height){
+function ClothSim(container, width, height, left, bottom){
 	this.container = $(container);
 	this.width = width;
 	this.height = height;
-	this.aspect = this.width / this.height;	
+	this.left = left;
+	this.bottom = bottom;
 	this.scene = new THREE.Scene();
 	this.drag = false;
 	this.dragPoint = null;
@@ -20,6 +21,7 @@ function ClothSim(container, width, height){
 		this.viewAngle = viewAngle;
 		this.near = near;
 		this.far = far;
+		this.aspect = this.width / this.height;	
 		this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
 		this.setCameraPos(this.camera.position.x, 150, 900);
 		this.scene.add(this.camera);
@@ -38,7 +40,7 @@ function ClothSim(container, width, height){
 	this.addCloth = function(cloth){
 		this.cloth = cloth;
 		this.cloth.addPointsToScene(this.scene);
-		this.cloth.addTrianglesToScene(this.scene);
+		//this.cloth.addTrianglesToScene(this.scene);
 	}
 
 	this.animate = function(){
@@ -132,12 +134,16 @@ function ClothSim(container, width, height){
 	this.cameraZoom = function(delta){
 		if (delta > 0) this.camera.position.z -= 30;
 		else if (delta < 0) this.camera.position.z += 30;
+
+		console.log(this.camera.position.z);
 	}
 
 	//Is the position within the canvas element?
 	this.validMousePos = function(x, y){
-		if ((x < 0) || (x > this.width) ||
-			(y < 0) || (y > this.height)) return false;
+		if ((x < this.left) || (x > (this.width + this.left)) ||
+			(y > this.bottom) || (y < (this.bottom - this.height))) {
+			return false;
+	}
 		return true;
 	}
 

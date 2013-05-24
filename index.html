@@ -11,11 +11,10 @@
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
-        <link rel="stylesheet" href="css/jquery-ui-1.10.3.custom.min.css">
+        <link rel="stylesheet" href="css/jquery-ui-1.10.3.custom.css">
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
-        
-
     </head>
+
     <body>
         <!--[if lt IE 7]>
             <p class="chromeframe">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> or <a href="http://www.google.com/chromeframe/?redirect=true">activate Google Chrome Frame</a> to improve your experience.</p>
@@ -27,31 +26,61 @@
 
         <section>
             <div id="left">
-                <p>This cloth simulation is implemented using the <a href="http://threejs.org/">three.js</a> 3D WebGL library. </p>
+                <div id="tabs">
+                    <ul>
+                        <li><a href="#overview">Overview</a></li>
+                        <li><a href="#settings">Settings</a></li>
+                        <li><a href="#implementation">Implementation</a></li>
+                    </ul>
 
-                <div id="controls">
-                    <p>left click: fire cannon</p>
-                    <p>right click: pan the camera</p>
-                    <p>mouse wheel: zoom in / out</p>
-
-                </div>
-
-                <div id="settings">
-                    <div id="wind">
-                        <div id="xSlider"></div>
-                        <div id="ySlider"></div>
-                        <div id="zSlider"></div>
-
+                    <div id="overview">
+                        <p>This cloth simulation is implemented using the <a href="http://threejs.org/">three.js</a> 3D WebGL library. </p>
+                        <p>Slow? Try turning down the number of constraint iterations run, turning off a type of constraint, or reducing the
+                            amount of points in the simulation</p>
                     </div>
-                    <input type="text" id="gravityVal"/>
-                    <div id="gravitySlider"></div>
+
+                   <div id="settings">
+                        <table id="windTable">
+                            <tr>
+
+                                <td class="windRow">
+                                    <span class="windLabel">x</p>
+                                    <div id="xSlider" class="windSlider"></div>
+                                    <!--<input type="text" id="xVal" class="windVal" readonly="readonly"/>-->
+                                </td>
+
+                                <td class="windRow">
+                                    <span class="windLabel">y</p>
+                                    <div id="ySlider" class="windSlider"></div>
+                                    <!--<input type="text" id="yVal" class="windVal" readonly="readonly"/>-->
+                                </td>
+
+                                <td class="windRow">
+                                    <span class="windLabel">z</p>
+                                    <div id="zSlider" class="windSlider"></div>
+                                    <!--<input type="text" id="zVal" class="windVal" readonly="readonly"/>-->
+                                </td>
+                            </tr>
+                        </table>
+                        <!--<input type="text" id="gravVal" readonly="readonly"/>-->
+                        <div id="gravSlider"></div>
+                    </div>
+                    
+                    <div id="implementation">
+                        Implementation details
+                    </div>
+
                 </div>
-
-
             </div>
 
             <div id="right">
                 <div id="container"></div>
+                <div id="controls">
+                    <p><b>left click</b> pick up / move ponit</p>
+                    <p><b>right click</b> pan camera</p>
+                    <p><b>left shift</b> stick point</p>
+                    <p><b>mouse wheel</b> zoom</p>
+                </div>
             </div>
 
         </section>

@@ -55,9 +55,16 @@ function ClothSim(container, width, height, left, bottom){
 	}
 
 	this.eventListeners = function(){
-
 		this.mouseEvents();
 		this.keyEvents();
+	}
+
+	this.updateSize = function(left, bottom, width, height){
+		this.left = left;
+		this.bottom = bottom;
+		this.renderer.setSize(width, height);
+		this.camera.aspect = this.aspect =  width / height;
+		this.camera.updateProjectionMatrix();
 	}
 
 	this.keyEvents = function(){
@@ -68,6 +75,7 @@ function ClothSim(container, width, height, left, bottom){
 				self.shift = true;
 			}	
 		});
+
 		$(document).keyup(function(event){
 			if(event.keyCode == 16){
 				self.shift = false;
@@ -108,6 +116,7 @@ function ClothSim(container, width, height, left, bottom){
 					else{
 						if (self.dragPoint) self.dragPoint.movable = true;
 					}
+
 					self.dragPoint = null;
 					self.drag = false;
 				}
@@ -116,8 +125,7 @@ function ClothSim(container, width, height, left, bottom){
 
 		$(document).mousedown(function(event){
 			if (self.mouseValid){
-				if (event.button == 0){ 
-					//left click
+				if (event.button == 0){ //left click
 					var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
 
 					self.mousePos = self.getMousePos(pos);
@@ -136,12 +144,12 @@ function ClothSim(container, width, height, left, bottom){
 		else if (delta < 0) this.camera.position.z += 30;
 	}
 
-	//Is the position within the canvas element?
+	//Is the mouse position within the canvas element?
 	this.validMousePos = function(x, y){
 		if ((x < this.left) || (x > (this.width + this.left)) ||
 			(y > this.bottom) || (y < (this.bottom - this.height))) {
 			return false;
-	}
+		}
 		return true;
 	}
 
@@ -164,6 +172,7 @@ function ClothSim(container, width, height, left, bottom){
 		var distance = - this.camera.position.z / dir.z;
 
 		var pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
+
 		return pos;
 	}
 }

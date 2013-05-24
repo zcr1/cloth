@@ -11,10 +11,10 @@ function Point(pos, mass, movable, damping, stepSize){
 
 	this.createSphere = function(){
 		var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
+
 		this.sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius, 2, 2), new THREE.MeshNormalMaterial());
 		this.sphere.position = this.position;
 		this.sphere.geometry.dynamic = true;
-
 	}
 	this.createSphere();
 
@@ -22,34 +22,28 @@ function Point(pos, mass, movable, damping, stepSize){
 		this.acceleration.add(f);
 	}
 
-	this.setFreeze = function(bool){
-		this.frozen = bool;
-	}
-
-	this.getFreeze = function(){
-		return this.frozen;
-	}
-
 	this.updatePos = function(pos){
+		this.position.setX(pos.x);
+		this.position.setY(pos.y);
+		this.position.setZ(pos.z);
 
-		this.position.x = pos.x;
-		this.position.y = pos.y;
-		this.position.z = pos.z;
 		this.sphere.position = pos;
 	}
 	
 	this.timeStep = function()
 	{
-		if (this.movable && !this.getFreeze())
+		if (this.movable)
 		{		
 			var previous = this.position;
 
-			this.position.x = this.position.x + ((this.position.x - this.oldPos.x) * 1.1) * (1.0 - this.damping) +
-						(this.acceleration.x * this.stepSize);
-			this.position.y = this.position.y + ((this.position.y - this.oldPos.y) * 1.1) * (1.0 - this.damping) +
-						(this.acceleration.y * this.stepSize);
-			this.position.z = this.position.z + ((this.position.z - this.oldPos.z) * 1.1) * (1.0 - this.damping) +
-						(this.acceleration.z * this.stepSize); 
+			this.position.setX(this.position.x + ((this.position.x - this.oldPos.x) * 1.1) * (1.0 - this.damping) +
+								(this.acceleration.x * this.stepSize));
+
+			this.position.setY(this.position.y + ((this.position.y - this.oldPos.y) * 1.1) * (1.0 - this.damping) +
+								(this.acceleration.y * this.stepSize));
+
+			this.position.setZ(this.position.z + ((this.position.z - this.oldPos.z) * 1.1) * (1.0 - this.damping) +
+								(this.acceleration.z * this.stepSize)); 
 
 			this.oldPos = previous;
 			//this.acceleration = new THREE.Vector3(0, 0, 0); //acceleration is reset since it has been translated into a change in position
@@ -57,12 +51,7 @@ function Point(pos, mass, movable, damping, stepSize){
 			this.sphere.position = this.position;
 		
 			this.sphere.geometry.verticesNeedUpdate = true;
-		
 			this.sphere.geometry.normalsNeedUpdate = true;
-
 		}
-
-
-		this.setFreeze(false);
 	}
 }

@@ -15,7 +15,7 @@ function Cloth(numPoints, damping, stepSize){
 	this.stepSize = stepSize;
 	this.numConstraints = 5; //how many times to run each constrain loop
 	this.gravity = new THREE.Vector3(0, -10, 0);
-	this.wind = new THREE.Vector3(-5, 0, 1);
+	this.wind = new THREE.Vector3(10, 0, 5);
 
 	this.createPoints = function(left, bottom){
 		//THREE.js Canvas starts with x=0 in middle and y=0 at bottom
@@ -151,12 +151,8 @@ function Cloth(numPoints, damping, stepSize){
 		}	
 	}
 
-
-	this.setWind = function(wind){
-		this.wind = wind
-	}
-
 	this.addWind = function(triangle){
+		//Get normal of triangle
 		var side1 = new THREE.Vector3(0, 0, 0);
 		side1.subVectors(triangle.p2.position, triangle.p1.position);
 
@@ -165,6 +161,7 @@ function Cloth(numPoints, damping, stepSize){
 
 		side1.cross(side2);
 
+		//Normalize
 		var normal = side1;
 		normal.normalize();
 
@@ -173,16 +170,18 @@ function Cloth(numPoints, damping, stepSize){
 		normal.multiplyScalar(d);
 		normal.multiplyScalar(5);
 
+		//Add force to each triangle
 		triangle.p1.addForce(normal);
 		triangle.p2.addForce(normal);
 		triangle.p3.addForce(normal);
 	}
 
+	//Apply shear, bend, and struct constraints for each point
 	this.satisfyConstraints = function(){
 		var rows = this.points.length, 
 			cols = this.points[0].length;	
 
-		for (var a = 0; a < this.numConstraints; a ++){
+		for (var a = 0; a < this.numConstraints; a++){
 			for (var i = 0; i < rows; i++){
 				for (var j = 0; j < cols; j++){
 					this.shearConstraints(i, j);
@@ -196,53 +195,58 @@ function Cloth(numPoints, damping, stepSize){
 	//Structural constraints are between neighbors in same row or column
 	this.structConstraints = function(i, j){
 		var rows = this.points.length, 
-			cols = this.points[0].length;
+			cols = this.points[0].length,
+			p1, p2;
 
 		if (j < cols - 1){
-			var p1 = this.points[i][j],
-				p2 = this.points[i][j + 1];
+			p1 = this.points[i][j];
+			p2 = this.points[i][j + 1];
 
 			this.constrainPoints(p1, p2, this.restLength);
 
 		}
 
 		if (j > 0){
-			var p1 = this.points[i][j],
-				p2 = this.points[i][j - 1];
+			p1 = this.points[i][j];
+			p2 = this.points[i][j - 1];
 
 			this.constrainPoints(p1, p2, this.restLength);
 		}
 
 		if (i < rows - 1){
-			var p1 = this.points[i][j],
-				p2 = this.points[i + 1][j];
+			p1 = this.points[i][j];
+			p2 = this.points[i + 1][j];
+
 			this.constrainPoints(p1, p2, this.restLength);
 		}
 
 		if (i > 0){
-			var p1 = this.points[i][j],
-				p2 = this.points[i - 1][j];
-			this.constrainPoints(p1, p2, this.restLength);
+			p1 = this.points[i][j];
+			p2 = this.points[i - 1][j];
 
+			this.constrainPoints(p1, p2, this.restLength);
 		}
 	}
 
 	//Shear constraints are between diagonal neighbors
 	this.shearConstraints = function(i, j){
 		var rows = this.points.length, 
-			cols = this.points[0].length;
+			cols = this.points[0].length,
+			p1, p2;
 
 		if (j > 0){
 			if (i > 0){
 				//NorthWest
 				p1 = this.points[i][j];
 				p2 = this.points[i - 1][j - 1];
+
 				this.constrainPoints(p1, p2, this.shearLength);	
 			}
 			if (i < rows - 1){
 				//NorthEast
 				p1 = this.points[i][j];
 				p2 = this.points[i + 1][j - 1];
+
 				this.constrainPoints(p1, p2, this.shearLength);
 			}
 		}
@@ -252,12 +256,14 @@ function Cloth(numPoints, damping, stepSize){
 				//SouthWest
 				p1 = this.points[i][j];
 				p2 = this.points[i - 1][j + 1];
+
 				this.constrainPoints(p1, p2, this.shearLength);
 			}
 			if (i < rows - 1){
 				//SouthEast
 				p1 = this.points[i][j];
 				p2 = this.points[i + 1][j + 1];
+
 				this.constrainPoints(p1, p2, this.shearLength);
 			}			
 		}
@@ -267,20 +273,21 @@ function Cloth(numPoints, damping, stepSize){
 	//analagous to jumping a piece in checkers
 	this.bendConstraints = function(i, j){
 		var rows = this.points.length, 
-			cols = this.points[0].length.
-			p1 = null,
-			p2 = null;
+			cols = this.points[0].length,
+			p1, p2;
 
 		if (j > 1){
 			//North
 			p1 = this.points[i][j];
 			p2 = this.points[i][j - 2];
+
 			this.constrainPoints(p1, p2, this.hvLength);
 
 			if (i > 1){
 				//NorthWest
 				p1 = this.points[i][j];
 				p2 = this.points[i - 2][j - 2];
+
 				this.constrainPoints(p1, p2, this.bendDiagLength);
 			}
 
@@ -288,6 +295,7 @@ function Cloth(numPoints, damping, stepSize){
 				//NorthEast
 				p1 = this.points[i][j];
 				p2 = this.points[i + 2][j - 2];
+
 				this.constrainPoints(p1, p2, this.bendDiagLength);
 			}
 		}
@@ -296,12 +304,14 @@ function Cloth(numPoints, damping, stepSize){
 			//South
 			p1 = this.points[i][j];
 			p2 = this.points[i][j + 2];
+
 			this.constrainPoints(p1, p2, this.hvLength);
 
 			if (i > 1){
 				//SouthWest
 				p1 = this.points[i][j];
 				p2 = this.points[i - 2][j + 2];
+
 				this.constrainPoints(p1, p2, this.bendDiagLength);
 			}
 
@@ -309,6 +319,7 @@ function Cloth(numPoints, damping, stepSize){
 				//SouthEast
 				p1 = this.points[i][j];
 				p2 = this.points[i + 2][j + 2];
+
 				this.constrainPoints(p1, p2, this.bendDiagLength);
 			}
 		}
@@ -317,6 +328,7 @@ function Cloth(numPoints, damping, stepSize){
 			//West
 			p1 = this.points[i][j];
 			p2 = this.points[i - 2][j];
+
 			this.constrainPoints(p1, p2, this.hvLength);			
 		}
 
@@ -324,6 +336,7 @@ function Cloth(numPoints, damping, stepSize){
 			//East
 			p1 = this.points[i][j];
 			p2 = this.points[i + 2][j];
+
 			this.constrainPoints(p1, p2, this.hvLength);			
 		}
 	}
@@ -333,11 +346,9 @@ function Cloth(numPoints, damping, stepSize){
 			newVect = new THREE.Vector3(0, 0, 0);
 
 		newVect.subVectors(p2.position, p1.position);
-		
-		//newVect.multiplyScalar(this.damping);
 		newVect.multiplyScalar(1 - restLength / dist);
 
-		if ((p1.movable && p2.movable) && !(p1.getFreeze() || p2.getFreeze())){
+		if (p1.movable && p2.movable){
 			newVect.multiplyScalar(0.5);
 			//p1.addForce(newVect);
 			p1.position.add(newVect);
@@ -347,12 +358,12 @@ function Cloth(numPoints, damping, stepSize){
 			//p2.addForce(newVect);
 		}
 		else{
-			if (p1.movable && !p1.getFreeze()){
+			if (p1.movable){
 				p1.position.add(newVect);
 				//p1.addForce(newVect);
 			}
 
-			if (p2.movable && !p2.getFreeze()){
+			if (p2.movable){
 				newVect.negate();
 				p2.position.add(newVect);
 				//p2.addForce(newVect);
@@ -361,7 +372,14 @@ function Cloth(numPoints, damping, stepSize){
 	}
 
 	this.updateGravity = function(val){
-		this.gravity = new THREE.Vector3(0, val, 0);
+		this.gravity.setY(val);
+	}
+
+	this.updateWind = function(x, y, z){
+		if (x != null) this.wind.setX(x);
+		if (y != null) this.wind.setY(y);
+		if (z != null) this.wind.setZ(z);
+		console.log(this.wind);
 	}
 
 }

@@ -9,6 +9,9 @@ $(function(){
 	//	return false;  
 	//});  
 
+	$(function() {
+		$( "#tabs" ).tabs();
+	});
 
 	//Get the height / width of the canvas
 	var $container = $("#container"),
@@ -22,7 +25,8 @@ $(function(){
 		bottom = position.top + height;
 
 	var sim = new ClothSim("#container", width, height, left, bottom);
-	sim.cameraInit(45, 0.2, 10000);
+	
+	sim.cameraInit(45, 0.2, 6000);
 	sim.renderInit();
 	sim.eventListeners();
 	
@@ -37,70 +41,84 @@ $(function(){
 
 	sim.addCloth(cloth);
 	sim.animate();
+
+
+	$(window).resize(function() {
+		position = $container.position();
+		left = position.left;
+		bottom = position.top + height;
+
+		sim.updateSize(left, bottom, $container.width(), $container.height());
+
+	});
+
 });
 
+function reset(){
 
+}
+
+//Set up the sliders
 function sliderInit(cloth){
-	var $gravitySlider = $("#gravitySlider"),
-		$gravityVal = $("#gravityVal"),
+	var $gravSlider = $("#gravSlider"),
+		//$gravVal = $("#gravVal"),
 		$xSlider = $("#xSlider"),
-		$xVal = $("#xVal"),
+		//$xVal = $("#xVal"),
 		$ySlider = $("#ySlider"),
-		$yVal = $("#yVal"),
-		$zSlider = $("#zSlider"),
-		$zVal = $("#zVal");
+		//$yVal = $("#yVal"),
+		$zSlider = $("#zSlider");
+		//$zVal = $("#zVal");
 
-	$gravitySlider.slider({
+	$gravSlider.slider({
 		orientation: "vertical",
 		range:"min",
-		min: -100,
-		max: 100,
-		value: -30,
+		min: -60,
+		max: 60,
+		value: -10,
 		slide: function(event, ui){
-			$gravityVal.val(ui.value);
+			//$gravVal.val(ui.value);
 			cloth.updateGravity(ui.value);
 		}
 	});
-	$gravityVal.val($gravitySlider.slider("value"));
+	//$gravVal.val($gravSlider.slider("value"));
 
 	$xSlider.slider({
 		orientation: "vertical",
 		range:"min",
-		min: -100,
-		max: 100,
-		value: 0,
+		min: -20,
+		max: 20,
+		value: 10,
 		slide: function(event, ui){
-			$xVal.val(ui.value);
-			cloth.updateGravity(ui.value);
+			//$xVal.val(ui.value);
+			cloth.updateWind(ui.value, null, null);
 		}
 	});
-	$xVal.val($xSlider.slider("value"));
-
+	//$xVal.val($xSlider.slider("value"));
 
 	$ySlider.slider({
 		orientation: "vertical",
 		range:"min",
-		min: -100,
-		max: 100,
+		min: -20,
+		max: 20,
 		value: 0,
 		slide: function(event, ui){
-			$yVal.val(ui.value);
-			cloth.updateGravity(ui.value);
+			//$yVal.val(ui.value);
+			cloth.updateWind(null, ui.value, null);
 		}
 	});
-	$yVal.val($ySlider.slider("value"));
+	//$yVal.val($ySlider.slider("value"));
 
 	$zSlider.slider({
 		orientation: "vertical",
 		range:"min",
-		min: -100,
-		max: 100,
-		value: 0,
+		min: -20,
+		max: 20,
+		value: 5,
 		slide: function(event, ui){
-			$zVal.val(ui.value);
-			cloth.updateGravity(ui.value);
+			//$zVal.val(ui.value);
+			cloth.updateWind(null, null, ui.value);
 		}
 	});
-	$zVal.val($zSlider.slider("value"));
+	//$zVal.val($zSlider.slider("value"));
 
 }

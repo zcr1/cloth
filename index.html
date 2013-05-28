@@ -13,6 +13,9 @@
         <link rel="stylesheet" href="css/main.css">
         <link rel="stylesheet" href="css/jquery-ui-1.10.3.custom.css">
         <script src="js/vendor/modernizr-2.6.2.min.js"></script>
+        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
+        <script src="js/vendor/jquery-ui-1.10.3.custom.min.js"></script>
+        <script src="js/main.js"></script>
     </head>
 
     <body>
@@ -35,68 +38,97 @@
 
                     <div id="overview">
                         <p>This cloth simulation is implemented using the <a href="http://threejs.org/">three.js</a> 3D WebGL library. </p>
-                        <p>Slow? Try modifying some settings, i.e. the number of constraint iterations, turning off a constraint, or reducing the
-                            amount of points in the simulation</p>
+                        <p>Slow? Try modifying some settings, such as the number of constraint iterations or turning off one of the constraints (shear, bend, structural).</p>
                     </div>
 
                    <div id="settings">
-                        <div>Wind</div>
-                        <table id="windTable">
+                        <div id="wind">
+                            <div id="windLabel">Wind</div>
+
+                            <table id="windTable">
+                                <tr>
+                                    <td class="sliderRow">
+                                        <div id="xSlider" class="windSlider"></div>
+                                    </td>
+
+                                    <td class="sliderRow">
+                                        <div id="ySlider" class="windSlider"></div>    
+                                    </td>
+
+                                    <td class="sliderRow">
+                                        <div id="zSlider" class="windSlider"></div>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td>
+                                        <span class="windAxis">x</p>
+                                    </td>
+                                    <td>
+                                        <span class="windAxis">y</p>
+                                    </td>
+                                    <td>
+                                        <span class="windAxis">z</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <table id="sliderTable">
                             <tr>
-                                <td class="windRow">
-                                    <div id="xSlider" class="windSlider"></div>
+                                <td>
+                                    <div>Iterations</div>
                                 </td>
-
-                                <td class="windRow">
-                                    <div id="ySlider" class="windSlider"></div>    
-                                </td>
-
-                                <td class="windRow">
-                                    <div id="zSlider" class="windSlider"></div>
+                                <td>
+                                    <div>Gravity</div>
                                 </td>
                             </tr>
-
                             <tr>
                                 <td>
-                                    <span class="windLabel">x</p>
+                                     <div id="iterSlider"></div>
                                 </td>
                                 <td>
-                                    <span class="windLabel">y</p>
-                                </td>
-                                <td>
-                                    <span class="windLabel">z</p>
+                                    <div id="gravSlider"></div>
                                 </td>
                             </tr>
                         </table>
 
-                        <div id="constraints">
-                            <label for="struct">Structural</label>
-                            <input id="struct" value="1" type="checkbox" checked/>
-                            
-                            <label for="shear">Shear</label>
-                            <input id="shear" value="1" type="checkbox" checked/>
-                            
-                            <label for="Bend">Bend</label>
-                            <input id"bend" value="1" type="checkbox" checked/>
-                        </div>
                         
                         <div style="clear: both;"></div>
-                        <div id="bottomSettings">
-                            <div>Iterations</div>
-                            <div id="iterSlider"></div>
-                            <div>Gravity</div>
-                            <div id="gravSlider"></div>
+
+                        <div id="constraints">
+                            <div class="conRow">
+                                <label for="struct">Structural</label>
+                                <input id="struct" value="1" type="checkbox" checked/>
+                            </div>
+                            
+                            <div class="conRow">
+                                <label for="shear">Shear</label>
+                                <input id="shear" value="1" type="checkbox" checked/>
+                            </div>
+                            
+                            <div class="conRow">
+                                <label for="Bend">Bend</label>
+                                <input id"bend" value="1" type="checkbox" checked/>
+                            </div>
                         </div>
+
+                        <div style="clear: both;"></div>
                     </div>
                     
                     <div id="details">
-                        Implementation details
+                        <p>A cloth simulation is a collection of particles that have contraints between them that must be satisfied. This simulation has three distinct type of constraints implemented, shearing, structural, and bending. At each timestep the particles pull / push each other depending on the type of constraint, and the rest length between the particles.</p>
+                        <img src="images/constraints.png" />
+                        <p>If WebGL is not supported in your browser, canvas mode will be used instead. Since this is much slower than WebGl, the number of particles
+                            in the simulation are halved. There will be a notification in the top left corner of the simulation window if canvas mode is enabled.</p>
+                        <p>Note: WebGL can be enabled in Safari under developer options.</p>
                     </div>
 
                 </div>
             </div>
 
             <div id="right">
+                <div id="canvasMode">canvas mode</div>
                 <div id="container"></div>
                 <div id="controls">
                     <p><b>left click</b> pick up / move ponit</p>
@@ -108,20 +140,14 @@
 
         </section>
 
-        <footer>
-            <p>The footer text will go here</p>
-        </footer>
-
-        <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-        <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.9.1.min.js"><\/script>')</script>
         <script src="js/vendor/three.min.js"></script>
         <script src="js/vendor/jquery.mousewheel.js"></script>
-        <script src="js/vendor/jquery-ui-1.10.3.custom.min.js"></script>
+        
+        <script src="js/detector.js"></script>
         <script src="js/plugins.js"></script>
         <script src="js/cloth.js"></script>
         <script src="js/point.js"></script>
         <script src="js/triangle.js"></script>
         <script src="js/clothsim.js"></script>
-        <script src="js/main.js"></script>
     </body>
 </html>

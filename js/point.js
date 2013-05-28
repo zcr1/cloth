@@ -1,18 +1,17 @@
-function Point(pos, mass, movable, damping, stepSize){
+function Point(pos, movable, damping, stepSize){
 	this.position = pos;
 	this.oldPos = pos;
-	this.mass = mass;
 	this.movable = movable;
 	this.acceleration = new THREE.Vector3(0, 0, 0);
 	this.damping = damping;
 	this.stepSize = stepSize;
 	this.radius = 2.5;
-	this.freeze = false;
 
 	this.createSphere = function(){
-		var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
+		//var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
+		//var material = new THREE.MeshLambertMaterial({ color: 0x2779aa });
 
-		this.sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius, 2, 2), new THREE.MeshNormalMaterial());
+		this.sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius, 4, 4), new THREE.MeshNormalMaterial());
 		this.sphere.position = this.position;
 		this.sphere.geometry.dynamic = true;
 	}

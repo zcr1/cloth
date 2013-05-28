@@ -6,10 +6,9 @@ function ClothSim(container, width, height, left, bottom){
 	this.bottom = bottom;
 	this.scene = new THREE.Scene();
 	this.drag = false;
-	this.dragPoint = null;
-	this.mousePos = null;
 	this.mouseValid = false;
 	this.shift = false;
+	this.leftClick = this.rightClick = false;
 
 	this.renderInit = function(){
 		this.renderer = new THREE.WebGLRenderer();
@@ -60,8 +59,9 @@ function ClothSim(container, width, height, left, bottom){
 	}
 
 	this.updateSize = function(left, bottom, width, height){
-		this.left = left;
-		this.bottom = bottom;
+		this.left = left, 	this.bottom = bottom;
+		this.width = width, this.height = height;
+
 		this.renderer.setSize(width, height);
 		this.camera.aspect = this.aspect =  width / height;
 		this.camera.updateProjectionMatrix();
@@ -98,17 +98,34 @@ function ClothSim(container, width, height, left, bottom){
 
 			if (self.mouseValid){
 				var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
-				
-				self.mousePos = self.getMousePos(pos);
 
-				if (self.drag && self.mouseValid){
-					self.dragPoint.updatePos(self.mousePos);
+				if (self.leftClick && self.mouseValid){	
+					self.mousePos = self.getMousePos(pos);
+
+					if (self.drag){
+						self.dragPoint.updatePos(self.mousePos);
+					}
+				}
+				else if(self.rightClick && self.mouseValid){
+					var vector = new THREE.Vector3(0, 0, 0);
+					
+					self.screenMousePos = pos;
+					vector.subVectors(self.screenMousePos, self.lastMousePos);
+					self.lastMousePos = self.screenMousePos;
+					
+					vector.normalize();
+					vector.setY(-vector.y);
+					vector.multiplyScalar(20);
+
+					self.panCamera(vector);
 				}
 			}
 		});
 
 		$(document).mouseup(function(event){
-			if(event.button == 0){
+			if (event.button == 0){ //left click
+				self.leftClick = false;
+
 				if (self.drag){
 					if (self.shift){
 						if (self.dragPoint) self.dragPoint.movable = false;
@@ -121,19 +138,27 @@ function ClothSim(container, width, height, left, bottom){
 					self.drag = false;
 				}
 			}
+			else if(event.button == 2){
+				self.rightClick = false;
+			}
 		});
 
 		$(document).mousedown(function(event){
 			if (self.mouseValid){
-				if (event.button == 0){ //left click
-					var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
+				var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
 
+				if (event.button == 0){ //left click
+					self.leftClick = true;
 					self.mousePos = self.getMousePos(pos);
 					self.drag = true;
 						
 					self.dragPoint = self.cloth.getClosestPoint(self.mousePos);
 					self.dragPoint.mouse = true;
 					self.dragPoint.movable = false;
+				}
+				else if (event.button == 2){
+					self.rightClick = true;
+					self.lastMousePos = pos;
 				}
 			}
 		});
@@ -174,5 +199,9 @@ function ClothSim(container, width, height, left, bottom){
 		var pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
 
 		return pos;
+	}
+
+	this.panCamera = function(vector){
+		this.camera.position.add(vector);
 	}
 }

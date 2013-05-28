@@ -4,11 +4,12 @@
 
 $(function(){
 
-	//disable context menu
-	//$(document).bind("contextmenu",function(e){  
-	//	return false;  
-	//});  
+	//Disable context menu
+	$(document).bind("contextmenu",function(e){  
+		return false;  
+	});  
 
+	//Initialize tabs
 	$(function() {
 		$( "#tabs" ).tabs();
 	});
@@ -26,18 +27,26 @@ $(function(){
 
 	var sim = new ClothSim("#container", width, height, left, bottom);
 	
-	sim.cameraInit(45, 0.2, 6000);
-	sim.renderInit();
+	sim.cameraInit(45, 0.2, 6500);
+	sim.renderInit(); 
 	sim.eventListeners();
 	
 	var damping = .02,
 		stepSize = .1,
-		cloth = new Cloth([15, 15], damping, stepSize);
+		cloth = new Cloth(20, damping, stepSize);
 
 	cloth.createPoints(left, bottom);
 	cloth.createTriangles();
 
-	sliderInit(cloth)
+	sliderInit(cloth);
+	checkBoxInit(cloth);
+
+
+	var pointLight = new THREE.PointLight(0xFFFFFF);
+	pointLight.position.x = 300;
+	pointLight.position.y = 400;
+	pointLight.position.z = 130;
+	sim.scene.add(pointLight);
 
 	sim.addCloth(cloth);
 	sim.animate();
@@ -54,20 +63,30 @@ $(function(){
 
 });
 
+function checkBoxInit(cloth){
+	$("#shear").change( function(){
+		cloth.updateShear($(this).is(':checked'));
+	});
+	$("#struct").change( function(){
+		cloth.updateStruct($(this).is(':checked'));
+	});
+	$("#bend").change( function(){
+		cloth.updateBend($(this).is(':checked'));
+	});
+}
+
 function reset(){
 
 }
 
-//Set up the sliders
+//Set up all the lovely sliders
 function sliderInit(cloth){
 	var $gravSlider = $("#gravSlider"),
-		//$gravVal = $("#gravVal"),
+		$iterSlider = $("#iterSlider"),
+		$pointSlider = $("#pointSlider"),
 		$xSlider = $("#xSlider"),
-		//$xVal = $("#xVal"),
 		$ySlider = $("#ySlider"),
-		//$yVal = $("#yVal"),
 		$zSlider = $("#zSlider");
-		//$zVal = $("#zVal");
 
 	$gravSlider.slider({
 		orientation: "vertical",
@@ -76,24 +95,42 @@ function sliderInit(cloth){
 		max: 60,
 		value: -10,
 		slide: function(event, ui){
-			//$gravVal.val(ui.value);
 			cloth.updateGravity(ui.value);
 		}
 	});
-	//$gravVal.val($gravSlider.slider("value"));
+
+	$iterSlider.slider({
+		orientation: "vertical",
+		range:"min",
+		min: 1,
+		max: 30,
+		value: 15,
+		slide: function(event, ui){
+			cloth.updateIter(ui.value);
+		}
+	});
+
+	$pointSlider.slider({
+		orientation: "vertical",
+		range:"min",
+		min: 1,
+		max: 30,
+		value: 15,
+		slide: function(event, ui){
+			cloth.updateNumPoints(ui.value);
+		}
+	});
 
 	$xSlider.slider({
 		orientation: "vertical",
 		range:"min",
 		min: -20,
 		max: 20,
-		value: 10,
+		value: 5,
 		slide: function(event, ui){
-			//$xVal.val(ui.value);
 			cloth.updateWind(ui.value, null, null);
 		}
 	});
-	//$xVal.val($xSlider.slider("value"));
 
 	$ySlider.slider({
 		orientation: "vertical",
@@ -102,23 +139,19 @@ function sliderInit(cloth){
 		max: 20,
 		value: 0,
 		slide: function(event, ui){
-			//$yVal.val(ui.value);
 			cloth.updateWind(null, ui.value, null);
 		}
 	});
-	//$yVal.val($ySlider.slider("value"));
 
 	$zSlider.slider({
 		orientation: "vertical",
 		range:"min",
 		min: -20,
 		max: 20,
-		value: 5,
+		value: 1,
 		slide: function(event, ui){
-			//$zVal.val(ui.value);
 			cloth.updateWind(null, null, ui.value);
 		}
 	});
-	//$zVal.val($zSlider.slider("value"));
 
 }

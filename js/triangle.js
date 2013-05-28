@@ -13,7 +13,7 @@ function Triangle(p1, p2, p3){
 
 	this.geometry.faces.push(new THREE.Face3(0, 2, 1));
 
-	this.material = new THREE.MeshBasicMaterial({color: 0xff0000});
+	this.material = new THREE.MeshNormalMaterial();
 
 	this.triMesh = new THREE.Mesh(this.geometry, this.material);
 

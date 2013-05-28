@@ -1,4 +1,5 @@
-//http://threejs.org/examples/canvas_geometry_cube.html
+//Cloth simulation developed by Zach Reinhardt
+
 
 "use strict";
 
@@ -7,7 +8,7 @@ $(function(){
 	//Disable context menu
 	/*$(document).bind("contextmenu",function(e){  
 		return false;  
-	});*/  
+	});  */
 
 	//Initialize tabs
 	$(function() {
@@ -25,32 +26,36 @@ $(function(){
 		left = position.left,
 		bottom = position.top + height;
 
-	var sim = new ClothSim("#container", width, height, left, bottom);
-	
-	sim.cameraInit(45, 0.2, 6500);
-	sim.renderInit(); 
-	sim.eventListeners();
-	
-	var damping = .02,
-		stepSize = .1,
-		cloth = new Cloth(20, damping, stepSize);
+	var numPoints = 0,
+		webGL = true;
 
-	cloth.createPoints(left, bottom);
-	cloth.createTriangles();
+	//Check if webGl is supported, it is much faster than canvas
+	if (Detector.webgl){
+		numPoints = 20;
+	}
+	else {
+		$("#canvasMode").toggle();
+		numPoints = 10;
+		webGL = false;
+	}
+
+	var sim = new ClothSim("#container", width, height, left, bottom),
+		damping = .02,
+		stepSize = .1,
+		cloth = new Cloth(numPoints, damping, stepSize);
 
 	sliderInit(cloth);
 	checkBoxInit(cloth);
 
+	sim.cameraInit(45, 0.2, 6500);
+	sim.renderInit(webGL); 
+	sim.eventListeners();
 
-	var pointLight = new THREE.PointLight(0xFFFFFF);
-	pointLight.position.x = 300;
-	pointLight.position.y = 400;
-	pointLight.position.z = 130;
-	sim.scene.add(pointLight);
+	cloth.createPoints(left, bottom);
+	cloth.createTriangles();
 
 	sim.addCloth(cloth);
 	sim.animate();
-
 
 	$(window).resize(function() {
 		position = $container.position();

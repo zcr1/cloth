@@ -10,8 +10,10 @@ function ClothSim(container, width, height, left, bottom){
 	this.shift = false;
 	this.leftClick = this.rightClick = false;
 
-	this.renderInit = function(){
-		this.renderer = new THREE.WebGLRenderer();
+	this.renderInit = function(webGL){
+		//Use webGL if available
+		this.renderer = webGL ? new THREE.WebGLRenderer(): new THREE.CanvasRenderer();
+
 		this.renderer.setSize(this.width, this.height);
 		this.container.append(this.renderer.domElement);
 	}

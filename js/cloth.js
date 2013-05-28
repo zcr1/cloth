@@ -389,6 +389,5 @@ function Cloth(numPoints, damping, stepSize){
 	this.updateIter = function(val){
 		this.numConstraints = val;
 	}
-
 }
 

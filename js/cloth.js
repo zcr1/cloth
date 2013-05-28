@@ -14,6 +14,7 @@ function Cloth(numPoints, damping, stepSize){
 
 	this.createPoints = function(left, bottom){
 		this.points = [];
+
 		//THREE.js Canvas starts with x=0 in middle and y=0 at bottom
 		for (var i = -(this.numPoints / 2); i < this.numPoints / 2; i++){
 			var row = [];
@@ -32,7 +33,7 @@ function Cloth(numPoints, damping, stepSize){
 		}
 	}
 
-	//Create triangles in the cloth
+	//Create triangles in the cloth that are used for wind effects
 	this.createTriangles = function(){
 		var rows = this.points.length, 
 			cols = this.points[0].length;
@@ -123,12 +124,6 @@ function Cloth(numPoints, damping, stepSize){
 		}
 	}
 
-	this.addTrianglesToScene = function(scene){
-		for (var i = 0; i < this.triangles.length; i++){
-			scene.add(this.triangles[i].triMesh);
-		}
-	}
-
 	this.timeStep = function(){
 		var rows = this.points.length, 
 			cols = this.points[0].length;
@@ -143,11 +138,12 @@ function Cloth(numPoints, damping, stepSize){
 		}
 
 		for (var i = 0; i < this.triangles.length; i++){
-			this.triangles[i].timeStep();
+			//this.triangles[i].timeStep();
 			this.addWind(this.triangles[i]);
 		}	
 	}
 
+	//Add wind based on triangle normals in scene
 	this.addWind = function(triangle){
 		//Get normal of triangle
 		var side1 = new THREE.Vector3(0, 0, 0);

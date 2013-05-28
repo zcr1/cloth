@@ -21,8 +21,10 @@ function ClothSim(container, width, height, left, bottom){
 		this.near = near;
 		this.far = far;
 		this.aspect = this.width / this.height;	
+
 		this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
 		this.setCameraPos(this.camera.position.x, 150, 900);
+		
 		this.scene.add(this.camera);
 	}
 
@@ -39,7 +41,6 @@ function ClothSim(container, width, height, left, bottom){
 	this.addCloth = function(cloth){
 		this.cloth = cloth;
 		this.cloth.addPointsToScene(this.scene);
-		//this.cloth.addTrianglesToScene(this.scene);
 	}
 
 	this.animate = function(){
@@ -123,7 +124,7 @@ function ClothSim(container, width, height, left, bottom){
 		});
 
 		$(document).mouseup(function(event){
-			if (event.button == 0){ //left click
+			if (event.button == 0){ //left button
 				self.leftClick = false;
 
 				if (self.drag){
@@ -156,7 +157,7 @@ function ClothSim(container, width, height, left, bottom){
 					self.dragPoint.mouse = true;
 					self.dragPoint.movable = false;
 				}
-				else if (event.button == 2){
+				else if (event.button == 2){ //right click
 					self.rightClick = true;
 					self.lastMousePos = pos;
 				}
@@ -180,7 +181,7 @@ function ClothSim(container, width, height, left, bottom){
 
 	//Extends a ray from camera position until the z-coordinate of ray is 0
 	this.getMousePos = function(mousePos){
-		//first transate the mousePos given the current canvas position
+		//translate the mousePos given the current canvas position
 		mousePos.x -= this.left;
 		mousePos.y -= (this.bottom - this.height);
 

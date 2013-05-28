@@ -8,9 +8,7 @@ function Point(pos, movable, damping, stepSize){
 	this.radius = 2.5;
 
 	this.createSphere = function(){
-		//var material = new THREE.MeshBasicMaterial( { vertexColors: THREE.FaceColors } );
-		//var material = new THREE.MeshLambertMaterial({ color: 0x2779aa });
-
+		//sphere(radius, rings, segments)
 		this.sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius, 4, 4), new THREE.MeshNormalMaterial());
 		this.sphere.position = this.position;
 		this.sphere.geometry.dynamic = true;
@@ -45,7 +43,7 @@ function Point(pos, movable, damping, stepSize){
 								(this.acceleration.z * this.stepSize)); 
 
 			this.oldPos = previous;
-			//this.acceleration = new THREE.Vector3(0, 0, 0); //acceleration is reset since it has been translated into a change in position
+
 			this.acceleration.multiplyScalar(0.75);
 			this.sphere.position = this.position;
 		

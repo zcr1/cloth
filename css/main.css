@@ -201,6 +201,11 @@ section{
     filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
 }
 
+#windTable{
+    float: left;
+}
+
+
 /*#leftContainer{
     float: left;
     width: 400px;

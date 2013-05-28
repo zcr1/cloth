@@ -21,7 +21,7 @@
         <![endif]-->
 
         <header>
-            <h2>Cloth Simulator</h2>
+            <h2>Cloth Simulation</h2>
         </header>
 
         <section>
@@ -40,6 +40,7 @@
                     </div>
 
                    <div id="settings">
+                        <div>Wind</div>
                         <table id="windTable">
                             <tr>
                                 <td class="windRow">
@@ -67,7 +68,6 @@
                                 </td>
                             </tr>
                         </table>
-                        <div id="gravSlider"></div>
 
                         <div id="constraints">
                             <label for="struct">Structural</label>
@@ -78,12 +78,14 @@
                             
                             <label for="Bend">Bend</label>
                             <input id"bend" value="1" type="checkbox" checked/>
-                            
-                            <div id="iterSlider"></div>
                         </div>
-
-                        <div id="numPoints">
-                            <div id="pointSlider"></div>
+                        
+                        <div style="clear: both;"></div>
+                        <div id="bottomSettings">
+                            <div>Iterations</div>
+                            <div id="iterSlider"></div>
+                            <div>Gravity</div>
+                            <div id="gravSlider"></div>
                         </div>
                     </div>
                     

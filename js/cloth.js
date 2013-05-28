@@ -164,9 +164,9 @@ function Cloth(numPoints, damping, stepSize){
 		normal.multiplyScalar(5);
 
 		//Add force to each triangle
-		triangle.p1.addForce(normal);
-		triangle.p2.addForce(normal);
-		triangle.p3.addForce(normal);
+		if (triangle.p1.movable) triangle.p1.addForce(normal);
+		if (triangle.p2.movable) triangle.p2.addForce(normal);
+		if (triangle.p3.movable) triangle.p3.addForce(normal);
 	}
 
 	//Apply shear, bend, and struct constraints for each point
@@ -369,7 +369,6 @@ function Cloth(numPoints, damping, stepSize){
 		if (x != null) this.wind.setX(x);
 		if (y != null) this.wind.setY(y);
 		if (z != null) this.wind.setZ(z);
-		console.log(this.wind);
 	}
 
 	this.updateNumPoints = function(val){

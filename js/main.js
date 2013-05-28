@@ -5,9 +5,9 @@
 $(function(){
 
 	//Disable context menu
-	$(document).bind("contextmenu",function(e){  
+	/*$(document).bind("contextmenu",function(e){  
 		return false;  
-	});  
+	});*/  
 
 	//Initialize tabs
 	$(function() {
@@ -41,8 +41,16 @@ $(function(){
 	sliderInit(cloth);
 	checkBoxInit(cloth);
 
+
+	var pointLight = new THREE.PointLight(0xFFFFFF);
+	pointLight.position.x = 300;
+	pointLight.position.y = 400;
+	pointLight.position.z = 130;
+	sim.scene.add(pointLight);
+
 	sim.addCloth(cloth);
 	sim.animate();
+
 
 	$(window).resize(function() {
 		position = $container.position();
@@ -67,13 +75,15 @@ function checkBoxInit(cloth){
 	});
 }
 
-function reset(){
-
+function reset(cloth){
+	cloth.createPoints();
+	cloth.createTriangles();
 }
 
 //Set up all the lovely sliders
 function sliderInit(cloth){
 	var $gravSlider = $("#gravSlider"),
+		$iterSlider = $("#iterSlider"),
 		$pointSlider = $("#pointSlider"),
 		$xSlider = $("#xSlider"),
 		$ySlider = $("#ySlider"),
@@ -90,14 +100,14 @@ function sliderInit(cloth){
 		}
 	});
 
-	$pointSlider.slider({
+	$iterSlider.slider({
 		orientation: "vertical",
 		range:"min",
 		min: 1,
 		max: 30,
 		value: 15,
 		slide: function(event, ui){
-			cloth.updateNumPoints(ui.value);
+			cloth.updateIter(ui.value);
 		}
 	});
 

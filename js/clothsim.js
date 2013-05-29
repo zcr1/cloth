@@ -163,6 +163,8 @@ function ClothSim(container, width, height, left, bottom){
 					self.rightClick = true;
 					self.lastMousePos = pos;
 				}
+
+				return false;
 			}
 		});
 	}

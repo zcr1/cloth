@@ -9,9 +9,9 @@ $( "#tabs" ).tabs();
 $(function(){
 
 	//Disable context menu
-	/*$(document).bind("contextmenu",function(e){  
+	$(document).bind("contextmenu",function(e){  
 		return false;  
-	});  */
+	});
 
 
 	//Get the height / width of the canvas
@@ -56,6 +56,7 @@ $(function(){
 	sim.addCloth(cloth);
 	sim.animate();
 
+	//Update simulation on window resize
 	$(window).resize(function() {
 		position = $container.position();
 		left = position.left;
@@ -77,11 +78,6 @@ function checkBoxInit(cloth){
 	$("#bend").change( function(){
 		cloth.updateBend($(this).is(':checked'));
 	});
-}
-
-function reset(cloth){
-	cloth.createPoints();
-	cloth.createTriangles();
 }
 
 //Set up all the lovely sliders

@@ -102,14 +102,14 @@ function ClothSim(container, width, height, left, bottom){
 			if (self.mouseValid){
 				var pos = new THREE.Vector3(event.pageX, event.pageY, self.camera.z);
 
-				if (self.leftClick && self.mouseValid){	
+				if (self.leftClick){
 					self.mousePos = self.getMousePos(pos);
 
 					if (self.drag){
 						self.dragPoint.updatePos(self.mousePos);
 					}
 				}
-				else if(self.rightClick && self.mouseValid){
+				else if(self.rightClick){ //pan the camera
 					var vector = new THREE.Vector3(0, 0, 0);
 					
 					self.screenMousePos = pos;

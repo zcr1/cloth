@@ -3,8 +3,7 @@
 
 "use strict";
 
-//Initialize tabs
-$( "#tabs" ).tabs();
+
 
 $(function(){
 
@@ -13,6 +12,11 @@ $(function(){
 		return false;  
 	});
 
+	//Initialize tabs
+	$( "#tabs" ).tabs();
+
+	//Content starts out hidden to allow jQuery UI to load
+	$("#left").toggle();
 
 	//Get the height / width of the canvas
 	var $container = $("#container"),

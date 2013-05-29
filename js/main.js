@@ -48,7 +48,6 @@ $(function(){
 		cloth = new Cloth(numPoints, damping, stepSize);
 
 	sliderInit(cloth);
-	checkBoxInit(cloth);
 
 	sim.cameraInit(45, 0.2, 6500);
 	sim.renderInit(webGL); 
@@ -71,18 +70,6 @@ $(function(){
 	});
 
 });
-
-function checkBoxInit(cloth){
-	$("#shear").change( function(){
-		cloth.updateShear($(this).is(':checked'));
-	});
-	$("#struct").change( function(){
-		cloth.updateStruct($(this).is(':checked'));
-	});
-	$("#bend").change( function(){
-		cloth.updateBend($(this).is(':checked'));
-	});
-}
 
 //Set up all the lovely sliders
 function sliderInit(cloth){

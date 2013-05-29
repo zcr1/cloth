@@ -38,7 +38,10 @@
 
                     <div id="overview">
                         <p>This cloth simulation is implemented using the <a href="http://threejs.org/">three.js</a> 3D WebGL library. </p>
-                        <p>Slow? Try modifying some settings, such as the number of constraint iterations or turning off one of the constraints (shear, bend, structural).</p>
+                        <p>Have some fun and modify the wind and gravity settings. Pick up a point and move it by holding the left mouse button and "stick"
+                            it by holding the left shift button and releasing the mouse butotn.</p>
+                        <p>Slow? Try turning down the constraint iterations, amount each constraint is applied per time step, or reducing the number of 
+                            particles in the simulation.</p>
                     </div>
 
                    <div id="settings">
@@ -99,8 +102,9 @@
                     <div id="details">
                         <p>A cloth simulation is a collection of particles that have contraints between them that must be satisfied. This simulation has three distinct type of constraints implemented, shearing, structural, and bending. At each timestep the particles pull / push each other depending on the type of constraint, and the rest length between the particles.</p>
                         <img src="images/constraints.png" />
-                        <p>If WebGL is not supported in your browser, canvas mode will be used instead. Since this is much slower than WebGl, the number of particles
-                            in the simulation are halved. There will be a notification in the top left corner of the simulation window if canvas mode is enabled.</p>
+                        <p>If WebGL is not supported in your browser, canvas mode will be used instead. Since this is much slower than WebGl, it would be wise to use
+                            a browser with WebGL capabilities or reduce some settings. There will be a notification in the top left corner of the simulation window if 
+                            canvas mode is enabled.</p>
                         <p>Note: WebGL can be enabled in Safari under developer options.</p>
                     </div>
 

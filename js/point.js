@@ -1,3 +1,5 @@
+//Particles of the simulation
+
 function Point(pos, movable, damping, stepSize){
 	this.position = pos;
 	this.oldPos = pos;

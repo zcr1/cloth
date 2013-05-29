@@ -1,5 +1,3 @@
-//TODO
-//texture - modifiable
 
 function Cloth(numPoints, damping, stepSize){
 	this.numPoints = numPoints //width & height
@@ -80,13 +78,6 @@ function Cloth(numPoints, damping, stepSize){
 		}
 
 		if ((i == (this.numPoints / 2 - 1)) && (j == (this.numPoints - 1))){
-			return true;
-		}
-
-		if ((i == -(this.numPoints / 2) + 1) && (j == (this.numPoints - 1))){
-			return true;
-		}
-		if ((i == (this.numPoints / 2) - 2) && (j == (this.numPoints - 1))){
 			return true;
 		}
 		
@@ -335,6 +326,7 @@ function Cloth(numPoints, damping, stepSize){
 		}
 	}
 
+	//Calculate the force between two points given a rest length
 	this.constrainPoints = function(p1, p2, restLength){
 		var dist = p1.position.distanceTo(p2.position),
 			newVect = new THREE.Vector3(0, 0, 0);

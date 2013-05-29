@@ -3,6 +3,9 @@
 
 "use strict";
 
+//Initialize tabs
+$( "#tabs" ).tabs();
+
 $(function(){
 
 	//Disable context menu
@@ -10,10 +13,6 @@ $(function(){
 		return false;  
 	});  */
 
-	//Initialize tabs
-	$(function() {
-		$( "#tabs" ).tabs();
-	});
 
 	//Get the height / width of the canvas
 	var $container = $("#container"),

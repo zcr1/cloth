@@ -68,8 +68,20 @@ $(function(){
 	});
 
 	$("#redraw").click(function(){
-		var num = 10;
-		sim.redraw(num);
+		sim.redraw(numPoints);
+	});
+
+	var $dimensions = $("#dimensions");
+	$("#up").click(function(){
+		numPoints++;
+		$dimensions.html("[" + numPoints + "," + numPoints + "]");
+	});	
+
+	$("#down").click(function(){
+		if(numPoints > 1) {
+			numPoints--;
+			$dimensions.html("[" + numPoints + "," + numPoints + "]");
+		}
 	});
 
 });

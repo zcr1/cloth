@@ -25,7 +25,7 @@ function ClothSim(container, width, height, left, bottom){
 		this.aspect = this.width / this.height;	
 
 		this.camera = new THREE.PerspectiveCamera(this.viewAngle, this.aspect, this.near, this.far);
-		this.setCameraPos(this.camera.position.x, 150, 900);
+		this.setCameraPos(0, 150, 900);
 		
 		this.scene.add(this.camera);
 	}
@@ -208,5 +208,14 @@ function ClothSim(container, width, height, left, bottom){
 
 	this.panCamera = function(vector){
 		this.camera.position.add(vector);
+	}
+
+	this.redraw = function(numPoints){
+		this.setCameraPos(0, 150, 900);
+		this.cloth.removePointsFromScene(this.scene);		
+		this.cloth.numPoints = numPoints;
+		this.cloth.createPoints(this.left, this.buttom);
+		this.cloth.createTriangles();
+		this.cloth.addPointsToScene(this.scene);
 	}
 }

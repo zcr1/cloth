@@ -31,6 +31,15 @@ function Cloth(numPoints, damping, stepSize){
 		}
 	}
 
+	//Remove points from the given scene
+	this.removePointsFromScene = function(scene){
+		for (var i = this.points.length - 1; i >= 0; i--){
+			for (var j = this.points[0].length - 1; j >= 0; j--){
+				scene.remove(this.points[i][j].sphere);
+			}
+		}
+	}
+
 	//Create triangles in the cloth that are used for wind effects
 	this.createTriangles = function(){
 		var rows = this.points.length, 

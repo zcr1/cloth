@@ -1,15 +1,13 @@
 //Cloth simulation developed by Zach Reinhardt
 
-
 "use strict";
-
-
 
 $(function(){
 
 	//Disable context menu
 	$(document).bind("contextmenu",function(e){  
-		return false;  
+		//return false;
+		return true;  
 	});
 
 	//Initialize tabs
@@ -32,7 +30,7 @@ $(function(){
 	var numPoints = 0,
 		webGL = true;
 
-	//Check if webGl is supported, it is much faster than canvas
+	//Check if webGl is supported
 	if (Detector.webgl){
 		numPoints = 20;
 	}
@@ -67,6 +65,11 @@ $(function(){
 
 		sim.updateSize(left, bottom, $container.width(), $container.height());
 
+	});
+
+	$("#redraw").click(function(){
+		var num = 10;
+		sim.redraw(num);
 	});
 
 });

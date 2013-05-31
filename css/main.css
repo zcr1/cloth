@@ -269,13 +269,15 @@ p {
 
 #up{
     cursor: pointer;
+    margin: auto;
 }
 
 #down{
     cursor: pointer;
+    margin: auto;
 }
 
-.arrowDown {
+.arrowDown{
     width: 0; 
     height: 0; 
     border-left: 10px solid transparent;
@@ -283,8 +285,17 @@ p {
     border-top: 10px solid black;
 }
 
-
-
+#dimensions{
+    width: 4em;
+    margin: auto;
+    margin-top: .25em;
+    margin-bottom: .25em;
+    text-align: center;
+}
+#numPoints{
+    width: 100%;
+    margin-bottom: 2em;
+}
 
 /* A lot of styles for one damn beautiful button */
 .blue {
@@ -322,6 +333,13 @@ p {
     text-shadow: 0 1px 1px rgba(0, 0, 0, 0.3);
     vertical-align: baseline;
 }
+
+#redraw{
+    display: block;
+    margin: auto;
+    width: 100px;
+}
+
 
 /* ==========================================================================
    Helper classes

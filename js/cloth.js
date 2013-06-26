@@ -1,6 +1,7 @@
 
 function Cloth(numPoints, damping, stepSize){
-	this.numPoints = numPoints //width & height
+	"use strict";
+	this.numPoints = numPoints; //width & height
 	this.restLength = 15; //rest length of structural constraint
 	this.partSize = 10;
 	this.damping = damping;
@@ -29,7 +30,7 @@ function Cloth(numPoints, damping, stepSize){
 			}
 			this.points.push(row);
 		}
-	}
+	};
 
 	//Remove points from the given scene
 	this.removePointsFromScene = function(scene){
@@ -38,11 +39,11 @@ function Cloth(numPoints, damping, stepSize){
 				scene.remove(this.points[i][j].sphere);
 			}
 		}
-	}
+	};
 
 	//Create triangles in the cloth that are used for wind effects
 	this.createTriangles = function(){
-		var rows = this.points.length, 
+		var rows = this.points.length,
 			cols = this.points[0].length;
 
 		this.triangles = [];
@@ -66,32 +67,32 @@ function Cloth(numPoints, damping, stepSize){
 					this.triangles.push(triangle);
 				}
 			}
-		}		
-	}
+		}
+	};
 
 	//Calculate the shear and bending rest lengths
 	this.calculateRestLengths = function(){
-		this.shearLength = Math.sqrt(this.restLength * this.restLength + 
+		this.shearLength = Math.sqrt(this.restLength * this.restLength +
 									this.restLength * this.restLength);
 
 		this.bendDiagLength = 2 * this.shearLength; //diagonal bend
 		this.hvLength = 2 * this.restLength; //horizontal / vertical bend
-	}
+	};
 	this.calculateRestLengths();
 
 
 	//Is the point top left, top left + 1, or right, right + 1
 	this.cornerCheck = function(i, j){
-		if ((i == -(this.numPoints / 2)) && (j == (this.numPoints - 1))){
+		if ((i === -(this.numPoints / 2)) && (j === (this.numPoints - 1))){
 			return true;
 		}
 
-		if ((i == (this.numPoints / 2 - 1)) && (j == (this.numPoints - 1))){
+		if ((i === (this.numPoints / 2 - 1)) && (j === (this.numPoints - 1))){
 			return true;
 		}
-		
-		return false;		
-	}
+
+		return false;
+	};
 
 	//Get closest point to mouse position
 	this.getClosestPoint = function(mousePos){
@@ -111,7 +112,7 @@ function Cloth(numPoints, damping, stepSize){
 		}
 
 		return this.points[minPoint[0]][minPoint[1]];
-	}
+	};
 
 	this.addPointsToScene = function(scene){
 		var rows = this.points.length, //slightly faster to cache the length
@@ -122,13 +123,13 @@ function Cloth(numPoints, damping, stepSize){
 				scene.add(this.points[i][j].sphere);
 			}
 		}
-	}
+	};
 
 	this.timeStep = function(){
-		var rows = this.points.length, 
+		var rows = this.points.length,
 			cols = this.points[0].length;
-		
-		for (var i = 0; i < rows; i++){	
+
+		for (var i = 0; i < rows; i++){
 			for (var j = 0; j < cols; j++){
 				if (this.points[i][j].movable){
 						this.points[i][j].addForce(this.gravity);
@@ -137,11 +138,10 @@ function Cloth(numPoints, damping, stepSize){
 			}
 		}
 
-		for (var i = 0; i < this.triangles.length; i++){
-			//this.triangles[i].timeStep();
+		for (i = 0; i < this.triangles.length; i++){
 			this.addWind(this.triangles[i]);
-		}	
-	}
+		}
+	};
 
 	//Add wind based on triangle normals in scene
 	this.addWind = function(triangle){
@@ -158,7 +158,7 @@ function Cloth(numPoints, damping, stepSize){
 		var normal = side1;
 		normal.normalize();
 
-		var d = normal.dot(this.wind);	
+		var d = normal.dot(this.wind);
 
 		normal.multiplyScalar(d);
 		normal.multiplyScalar(5);
@@ -167,12 +167,12 @@ function Cloth(numPoints, damping, stepSize){
 		if (triangle.p1.movable) triangle.p1.addForce(normal);
 		if (triangle.p2.movable) triangle.p2.addForce(normal);
 		if (triangle.p3.movable) triangle.p3.addForce(normal);
-	}
+	};
 
 	//Apply shear, bend, and struct constraints for each point
 	this.satisfyConstraints = function(){
-		var rows = this.points.length, 
-			cols = this.points[0].length;	
+		var rows = this.points.length,
+			cols = this.points[0].length;
 
 		for (var a = 0; a < this.numConstraints; a++){
 			for (var i = 0; i < rows; i++){
@@ -184,11 +184,11 @@ function Cloth(numPoints, damping, stepSize){
 				}
 			}
 		}
-	}
+	};
 
 	//Structural constraints are between neighbors in same row or column
 	this.structConstraints = function(i, j){
-		var rows = this.points.length, 
+		var rows = this.points.length,
 			cols = this.points[0].length,
 			p1, p2;
 
@@ -220,11 +220,11 @@ function Cloth(numPoints, damping, stepSize){
 
 			this.constrainPoints(p1, p2, this.restLength);
 		}
-	}
+	};
 
 	//Shear constraints are between diagonal neighbors
 	this.shearConstraints = function(i, j){
-		var rows = this.points.length, 
+		var rows = this.points.length,
 			cols = this.points[0].length,
 			p1, p2;
 
@@ -234,7 +234,7 @@ function Cloth(numPoints, damping, stepSize){
 				p1 = this.points[i][j];
 				p2 = this.points[i - 1][j - 1];
 
-				this.constrainPoints(p1, p2, this.shearLength);	
+				this.constrainPoints(p1, p2, this.shearLength);
 			}
 			if (i < rows - 1){
 				//NorthEast
@@ -259,14 +259,14 @@ function Cloth(numPoints, damping, stepSize){
 				p2 = this.points[i + 1][j + 1];
 
 				this.constrainPoints(p1, p2, this.shearLength);
-			}			
+			}
 		}
-	}
+	};
 
 	//Bend constraints are any point you could reach by "jumping" a neighbor point
 	//analagous to jumping a piece in checkers
 	this.bendConstraints = function(i, j){
-		var rows = this.points.length, 
+		var rows = this.points.length,
 			cols = this.points[0].length,
 			p1, p2;
 
@@ -323,7 +323,7 @@ function Cloth(numPoints, damping, stepSize){
 			p1 = this.points[i][j];
 			p2 = this.points[i - 2][j];
 
-			this.constrainPoints(p1, p2, this.hvLength);			
+			this.constrainPoints(p1, p2, this.hvLength);
 		}
 
 		if (i < cols - 2){
@@ -331,9 +331,9 @@ function Cloth(numPoints, damping, stepSize){
 			p1 = this.points[i][j];
 			p2 = this.points[i + 2][j];
 
-			this.constrainPoints(p1, p2, this.hvLength);			
+			this.constrainPoints(p1, p2, this.hvLength);
 		}
-	}
+	};
 
 	//Calculate the force between two points given a rest length
 	this.constrainPoints = function(p1, p2, restLength){
@@ -360,35 +360,36 @@ function Cloth(numPoints, damping, stepSize){
 				p2.position.add(newVect);
 			}
 		}
-	}
+	};
 
 	this.updateGravity = function(val){
 		this.gravity.setY(val);
-	}
+	};
 
 	this.updateWind = function(x, y, z){
-		if (x != null) this.wind.setX(x);
-		if (y != null) this.wind.setY(y);
-		if (z != null) this.wind.setZ(z);
-	}
+		if (x !== null) this.wind.setX(x);
+		if (y !== null) this.wind.setY(y);
+		if (z !== null) this.wind.setZ(z);
+	};
 
 	this.updateNumPoints = function(val){
-		this.numPoints 
-	}
+		this.numPoints = val;
+	};
+
 	this.updateShear = function(bool){
 		this.shear = bool;
-	}
+	};
 
 	this.updateStruct = function(bool){
 		this.struct = bool;
-	}
+	};
 
 	this.updateBend = function(bool){
 		this.bend = bool;
-	}
+	};
 
 	this.updateIter = function(val){
 		this.numConstraints = val;
-	}
+	};
 }
 

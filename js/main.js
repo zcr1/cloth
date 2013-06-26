@@ -5,9 +5,9 @@
 $(function(){
 
 	//Disable context menu
-	$(document).bind("contextmenu",function(e){  
+	$(document).bind("contextmenu",function(e){
 		//return false;
-		return true;  
+		return true;
 	});
 
 	//Initialize tabs
@@ -41,14 +41,14 @@ $(function(){
 	}
 
 	var sim = new ClothSim("#container", width, height, left, bottom),
-		damping = .02,
-		stepSize = .1,
+		damping = 0.02,
+		stepSize = 0.1,
 		cloth = new Cloth(numPoints, damping, stepSize);
 
 	sliderInit(cloth);
 
 	sim.cameraInit(45, 0.2, 6500);
-	sim.renderInit(webGL); 
+	sim.renderInit(webGL);
 	sim.eventListeners();
 
 	cloth.createPoints(left, bottom);
@@ -75,7 +75,7 @@ $(function(){
 	$("#up").click(function(){
 		numPoints++;
 		$dimensions.html("[" + numPoints + "," + numPoints + "]");
-	});	
+	});
 
 	$("#down").click(function(){
 		if(numPoints > 1) {

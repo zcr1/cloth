@@ -29,10 +29,8 @@ function Point(pos, movable, damping, stepSize){
 		this.sphere.position = pos;
 	};
 
-	this.timeStep = function()
-	{
-		if (this.movable)
-		{
+	this.timeStep = function(){
+		if (this.movable){
 			var previous = this.position;
 
 			this.position.setX(this.position.x + ((this.position.x - this.oldPos.x) * 1.1) * (1.0 - this.damping) +

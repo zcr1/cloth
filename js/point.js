@@ -11,7 +11,6 @@ function Point(pos, movable, damping, stepSize){
 	this.radius = 2.5;
 
 	this.createSphere = function(){
-		//sphere(radius, rings, segments)
 		this.sphere = new THREE.Mesh(new THREE.SphereGeometry(this.radius, 4, 4), new THREE.MeshNormalMaterial());
 		this.sphere.position = this.position;
 		this.sphere.geometry.dynamic = true;
